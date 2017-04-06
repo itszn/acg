@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         sprintf( path_to_ptx, "%s/%s", sutil::samplesPTXDir(), "optixHello_generated_draw_color.cu.ptx" );
         RT_CHECK_ERROR( rtProgramCreateFromPTXFile( context, path_to_ptx, "draw_solid_color", &ray_gen_program ) );
         RT_CHECK_ERROR( rtProgramDeclareVariable( ray_gen_program, "draw_color", &draw_color ) );
-        RT_CHECK_ERROR( rtVariableSet3f( draw_color, 0.462f, 0.725f, 0.0f ) );
+        RT_CHECK_ERROR( rtVariableSet3f( draw_color, 0.462f, 0.0f, 0.725f ) );
         RT_CHECK_ERROR( rtContextSetRayGenerationProgram( context, 0, ray_gen_program ) );
 
         /* Run */
