@@ -1,0 +1,1 @@
+build\bin\Debug\optixHello.exe -f output\out.ppm

@@ -27,7 +27,13 @@
 #
 
 # See top level CMakeLists.txt file for documentation of OPTIX_add_sample_executable.
-OPTIX_add_sample_executable(optixHello
-  optixHello.cpp
-  draw_color.cu
+OPTIX_add_sample_executable( optixSphere
+  optixSphere.cpp
+
+  # These files are common among multiple samples
+  constantbg.cu
+  helpers.h
+  normal_shader.cu
+  pinhole_camera.cu
+  sphere.cu
   )
