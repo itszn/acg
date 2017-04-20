@@ -53,6 +53,13 @@ rtDeclareVariable(unsigned int,  radiance_ray_type, , );
 rtDeclareVariable(unsigned int,  frame, , );
 rtDeclareVariable(uint2,         launch_index, rtLaunchIndex, );
 
+static __device__ __inline__ optix::uchar4 make_color_discretized(float3 color)
+{
+  color.x = floor(color.x * 4.0) / 4.0;
+  color.y = floor(color.y * 4.0) / 4.0;
+  color.z = floor(color.z * 4.0) / 4.0;
+  return make_color( color );
+}
 
 RT_PROGRAM void pinhole_camera()
 {
@@ -83,12 +90,7 @@ RT_PROGRAM void pinhole_camera()
     acc_val = make_float4(prd.result, 0.f);
   }
 
-  float3 color = make_float3( acc_val );
-  color.x = floor(color.x * 4.0) / 4.0;
-  color.y = floor(color.y * 4.0) / 4.0;
-  color.z = floor(color.z * 4.0) / 4.0;
-
-  output_buffer[launch_index] = make_color( color );
+  output_buffer[launch_index] = make_color_discretized( make_float3( acc_val ) );
   accum_buffer[launch_index] = acc_val;
 }
 
