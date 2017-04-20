@@ -113,7 +113,6 @@ __device__ void toonShade( float3 p_Kd,
       intensity += nDl/num_lights;
     }
   }
-#if 0
   if( fmaxf( p_Kr ) > 0 ) {
     // ray tree attenuation
     PerRayData_radiance new_prd;             
@@ -127,7 +126,6 @@ __device__ void toonShade( float3 p_Kd,
       result += p_Kr * new_prd.result;
     }
   }
-#endif
   // pass the color back up the tree
   prd.result = discretize( result, intensity );
 }
