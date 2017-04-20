@@ -35,6 +35,7 @@ struct PerRayData_radiance
   float3 result;
   float importance;
   int depth;
+  float intensity;
 };
 
 struct PerRayData_shadow
@@ -77,6 +78,7 @@ __device__ void phongShade( float3 p_Kd,
   // ambient contribution
 
   float3 result = p_Ka * ambient_light_color;
+  float intensity = 0.0;
 
   // compute direct lighting
   unsigned int num_lights = lights.size();
@@ -85,6 +87,7 @@ __device__ void phongShade( float3 p_Kd,
     float Ldist = optix::length(light.pos - hit_point);
     float3 L = optix::normalize(light.pos - hit_point);
     float nDl = optix::dot( p_normal, L);
+    intensity += nDl/num_lights;
 
     // cast shadow ray
     float3 light_attenuation = make_float3(static_cast<float>( nDl > 0.0f ));
@@ -129,4 +132,5 @@ __device__ void phongShade( float3 p_Kd,
   
   // pass the color back up the tree
   prd.result = result;
+  prd.intensity = intensity;
 }

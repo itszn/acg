@@ -38,6 +38,7 @@ struct PerRayData_radiance
   float3 result;
   float  importance;
   int    depth;
+  float intensity;
 };
 
 rtDeclareVariable(float3,        eye, , );
@@ -52,14 +53,6 @@ rtDeclareVariable(rtObject,      top_object, , );
 rtDeclareVariable(unsigned int,  radiance_ray_type, , );
 rtDeclareVariable(unsigned int,  frame, , );
 rtDeclareVariable(uint2,         launch_index, rtLaunchIndex, );
-
-static __device__ __inline__ optix::uchar4 make_color_discretized(float3 color)
-{
-  color.x = floor(color.x * 3.0) / 3.0;
-  color.y = floor(color.y * 3.0) / 3.0;
-  color.z = floor(color.z * 3.0) / 3.0;
-  return make_color( color );
-}
 
 RT_PROGRAM void pinhole_camera()
 {
@@ -90,7 +83,7 @@ RT_PROGRAM void pinhole_camera()
     acc_val = make_float4(prd.result, 0.f);
   }
 
-  output_buffer[launch_index] = make_color_discretized( make_float3( acc_val ) );
+  output_buffer[launch_index] = make_color( make_float3( acc_val ) );
   accum_buffer[launch_index] = acc_val;
 }
 
