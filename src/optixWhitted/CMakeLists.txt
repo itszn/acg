@@ -36,7 +36,6 @@ if(GLUT_FOUND AND OPENGL_FOUND)
         optixWhitted.cpp
         sphere_shell.cu
 
-        # These files are common among multiple samples
         accum_camera.cu
         checker.cu
         commonStructs.h
@@ -44,11 +43,10 @@ if(GLUT_FOUND AND OPENGL_FOUND)
         glass.cu
         helpers.h
         parallelogram.cu
-        phong.cu
-        phong.h
+        toon.cu
+        toon.h
         random.h
         sphere.cu
-
         )
 else()
     # GLUT or OpenGL not found

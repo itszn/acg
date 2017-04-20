@@ -41,9 +41,9 @@ static __device__ __inline__ optix::uchar4 make_color(const optix::float3& c)
 }
 #endif
 
-// Sample Phong lobe relative to U, V, W frame
+// Sample toon lobe relative to U, V, W frame
 static
-__host__ __device__ __inline__ optix::float3 sample_phong_lobe( optix::float2 sample, float exponent, 
+__host__ __device__ __inline__ optix::float3 sample_toon_lobe( optix::float2 sample, float exponent, 
                                                                 optix::float3 U, optix::float3 V, optix::float3 W )
 {
   const float power = expf( logf(sample.y)/(exponent+1.0f) );
@@ -57,9 +57,9 @@ __host__ __device__ __inline__ optix::float3 sample_phong_lobe( optix::float2 sa
   return x*U + y*V + z*W;
 }
 
-// Sample Phong lobe relative to U, V, W frame
+// Sample toon lobe relative to U, V, W frame
 static
-__host__ __device__ __inline__ optix::float3 sample_phong_lobe( const optix::float2 &sample, float exponent, 
+__host__ __device__ __inline__ optix::float3 sample_toon_lobe( const optix::float2 &sample, float exponent, 
                                                                 const optix::float3 &U, const optix::float3 &V, const optix::float3 &W, 
                                                                 float &pdf, float &bdf_val )
 {
@@ -79,9 +79,9 @@ __host__ __device__ __inline__ optix::float3 sample_phong_lobe( const optix::flo
   return x*U + y*V + z*W;
 }
 
-// Get Phong lobe PDF for local frame
+// Get toon lobe PDF for local frame
 static
-__host__ __device__ __inline__ float get_phong_lobe_pdf( float exponent, const optix::float3 &normal, const optix::float3 &dir_out, 
+__host__ __device__ __inline__ float get_toon_lobe_pdf( float exponent, const optix::float3 &normal, const optix::float3 &dir_out, 
                                                          const optix::float3 &dir_in, float &bdf_val)
 {  
   using namespace optix;

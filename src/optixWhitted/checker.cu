@@ -28,7 +28,7 @@
 
 #include <optix.h>
 #include <optixu/optixu_math_namespace.h>
-#include "phong.h" 
+#include "toon.h" 
 
 using namespace optix;
 
@@ -40,8 +40,8 @@ rtDeclareVariable(float3,       Ks1, , );
 rtDeclareVariable(float3,       Ks2, , );
 rtDeclareVariable(float3,       Kr1, , );
 rtDeclareVariable(float3,       Kr2, , );
-rtDeclareVariable(float,        phong_exp1, , );
-rtDeclareVariable(float,        phong_exp2, , );
+rtDeclareVariable(float,        toon_exp1, , );
+rtDeclareVariable(float,        toon_exp2, , );
 rtDeclareVariable(float3,       inv_checker_size, , );  // Inverse checker height, width and depth in texture space
 
 rtDeclareVariable(float3, texcoord, attribute texcoord, ); 
@@ -51,14 +51,14 @@ rtDeclareVariable(float3, shading_normal, attribute shading_normal, );
 
 RT_PROGRAM void any_hit_shadow()
 {
-  phongShadowed();
+  toonShadowed();
 }
 
 
 RT_PROGRAM void closest_hit_radiance()
 {
   float3 Kd, Ka, Ks, Kr;
-  float  phong_exp;
+  float  toon_exp;
 
   float3 t  = texcoord * inv_checker_size;
   t.x = floorf(t.x);
@@ -70,13 +70,13 @@ RT_PROGRAM void closest_hit_radiance()
                       static_cast<int>( t.z ) ) & 1;
 
   if ( which_check ) {
-    Kd = Kd1; Ka = Ka1; Ks = Ks1; Kr = Kr1; phong_exp = phong_exp1;
+    Kd = Kd1; Ka = Ka1; Ks = Ks1; Kr = Kr1; toon_exp = toon_exp1;
   } else {
-    Kd = Kd2; Ka = Ka2; Ks = Ks2; Kr = Kr2; phong_exp = phong_exp2;
+    Kd = Kd2; Ka = Ka2; Ks = Ks2; Kr = Kr2; toon_exp = toon_exp2;
   }
 
   float3 world_shading_normal   = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, shading_normal));
   float3 world_geometric_normal = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, geometric_normal));
   float3 ffnormal  = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
-  phongShade( Kd, Ka, Ks, Kr, phong_exp, ffnormal );
+  toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
 }

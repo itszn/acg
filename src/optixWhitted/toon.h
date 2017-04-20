@@ -57,7 +57,7 @@ rtDeclareVariable(float, t_hit, rtIntersectionDistance, );
 rtDeclareVariable(PerRayData_radiance, prd, rtPayload, );
 rtDeclareVariable(PerRayData_shadow,   prd_shadow, rtPayload, );
 
-static __device__ void phongShadowed()
+static __device__ void toonShadowed()
 {
   // this material is opaque, so it fully attenuates all shadow rays
   prd_shadow.attenuation = optix::make_float3(0.0f);
@@ -79,11 +79,11 @@ __device__ float3 discretize(float3 color, float intensity)
 }
 
 static
-__device__ void phongShade( float3 p_Kd,
+__device__ void toonShade( float3 p_Kd,
                             float3 p_Ka,
                             float3 p_Ks,
                             float3 p_Kr,
-                            float  p_phong_exp, 
+                            float  p_toon_exp, 
                             float3 p_normal )
 {
   float3 hit_point = ray.origin + t_hit * ray.direction;

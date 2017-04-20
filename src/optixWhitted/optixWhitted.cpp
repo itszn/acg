@@ -261,17 +261,17 @@ void createGeometry()
 #endif
 
     // Metal material
-    const std::string metal_ptx = ptxPath( "phong.cu" );
-    Program phong_ch = context->createProgramFromPTXFile( metal_ptx, "closest_hit_radiance" );
-    Program phong_ah = context->createProgramFromPTXFile( metal_ptx, "any_hit_shadow" );
+    const std::string metal_ptx = ptxPath( "toon.cu" );
+    Program toon_ch = context->createProgramFromPTXFile( metal_ptx, "closest_hit_radiance" );
+    Program toon_ah = context->createProgramFromPTXFile( metal_ptx, "any_hit_shadow" );
 
     Material metal_matl = context->createMaterial();
-    metal_matl->setClosestHitProgram( 0, phong_ch );
-    metal_matl->setAnyHitProgram( 1, phong_ah );
+    metal_matl->setClosestHitProgram( 0, toon_ch );
+    metal_matl->setAnyHitProgram( 1, toon_ah );
     metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
-    metal_matl["phong_exp"]->setFloat( 64 );
+    metal_matl["toon_exp"]->setFloat( 64 );
     metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
 
     // Checker material for floor
@@ -289,8 +289,8 @@ void createGeometry()
     floor_matl["Ka2"]->setFloat( 0.9f, 0.85f, 0.05f);
     floor_matl["Ks2"]->setFloat( 0.0f, 0.0f, 0.0f);
     floor_matl["inv_checker_size"]->setFloat( 32.0f, 16.0f, 1.0f );
-    floor_matl["phong_exp1"]->setFloat( 0.0f );
-    floor_matl["phong_exp2"]->setFloat( 0.0f );
+    floor_matl["toon_exp1"]->setFloat( 0.0f );
+    floor_matl["toon_exp2"]->setFloat( 0.0f );
     floor_matl["Kr1"]->setFloat( 0.0f, 0.0f, 0.0f);
     floor_matl["Kr2"]->setFloat( 0.0f, 0.0f, 0.0f);
 
