@@ -82,7 +82,53 @@ RT_PROGRAM void pinhole_camera()
   } else {
     acc_val = make_float4(prd.result, 0.f);
   }
-  output_buffer[launch_index] = make_color( make_float3( acc_val ) );
+  // CHALLENGES
+  // 1. We cannot get the normal and the light vectors of the first hit with this API,
+  //    which are crucial to determine the intensity of the light. Instead we approximate
+  //    this using RGB to intensity conversion.
+
+  /// perform the conversion to luminosity
+  {
+    float3 RGBtoY;
+    RGBtoY.x = 0.2126;
+    RGBtoY.y = 0.7152;
+    RGBtoY.z = 0.0722;
+
+    float3 mult1;
+    mult1.x = 1.00;
+    mult1.y = 1.00;
+    mult1.z = 1.00;
+
+    float3 mult2;
+    mult2.x = 0.70;
+    mult2.y = 0.70;
+    mult2.z = 0.70;
+
+    float3 mult3;
+    mult2.x = 0.35;
+    mult2.y = 0.35;
+    mult2.z = 0.35;
+
+    float3 mult4;
+    mult2.x = 0.10;
+    mult2.y = 0.10;
+    mult2.z = 0.10;
+
+    float3 color = make_float3(acc_val);
+    float intensity = dot(RGBtoY, color);
+    if (intensity > 0.95)
+        color = mult1 * color;
+    else if (intensity > 0.5)
+        color = mult2 * color;
+    else if (intensity > 0.05)
+        color = mult3 * color;
+    else
+        color = mult4 * color;
+    output_buffer[launch_index] = make_color( color );
+  }
+  /// end conversion to luminosity
+
+  // TODO: what to do with this?
   accum_buffer[launch_index] = acc_val;
 }
 
@@ -92,4 +138,3 @@ RT_PROGRAM void exception()
   rtPrintf( "Caught exception 0x%X at launch index (%d,%d)\n", code, launch_index.x, launch_index.y );
   output_buffer[launch_index] = make_color( bad_color );
 }
-
