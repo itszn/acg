@@ -52,6 +52,14 @@ rtDeclareVariable(uint2, launch_index, rtLaunchIndex, );
 rtDeclareVariable(uint2, launch_dim,   rtLaunchDim, );
 rtDeclareVariable(float, time_view_scale, , ) = 1e-6f;
 
+RT_PROGRAM float3 make_color_discretized(float3 color)
+{
+  color.x = floor(color.x * 4.0) / 4.0;
+  color.y = floor(color.y * 4.0) / 4.0;
+  color.z = floor(color.z * 4.0) / 4.0;
+  return make_color( color );
+}
+
 RT_PROGRAM void pinhole_camera()
 {
   float2 d = make_float2(launch_index) / make_float2(launch_dim) * 2.f - 1.f;
@@ -65,7 +73,7 @@ RT_PROGRAM void pinhole_camera()
   prd.depth = 0;
 
   rtTrace(top_object, ray, prd);
-  output_buffer[launch_index] = make_color( prd.result );
+  output_buffer[launch_index] = make_color_discretized( prd.result );
 }
 
 RT_PROGRAM void exception()
