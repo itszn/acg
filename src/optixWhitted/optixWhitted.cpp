@@ -270,9 +270,9 @@ void createGeometry()
     metal_matl->setAnyHitProgram( 1, phong_ah );
     metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
-    metal_matl["Ks"]->setFloat( 0.0f, 0.0f, 0.0f );
+    metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
     metal_matl["phong_exp"]->setFloat( 64 );
-    metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
+    metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
 
     // Checker material for floor
     const std::string checker_ptx = ptxPath( "checker.cu" );
