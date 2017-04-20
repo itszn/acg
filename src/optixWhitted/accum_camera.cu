@@ -116,7 +116,7 @@ RT_PROGRAM void pinhole_camera()
 
     float3 color = make_float3(acc_val);
     // convert from RGB to Y to L* (i.e. L*A*B*)
-    float intensity = dot(RGBtoY, color)/256.0;
+    float intensity = dot(RGBtoY, color);
     rtPrintf( "intense(%f)\n", intensity);
     if (intensity > 0.95)
         color = mult1 * color;
