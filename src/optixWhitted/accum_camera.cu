@@ -55,9 +55,9 @@ rtDeclareVariable(uint2,         launch_index, rtLaunchIndex, );
 
 static __device__ __inline__ optix::uchar4 make_color_discretized(float3 color)
 {
-  color.x = floor(color.x * 4.0) / 4.0;
-  color.y = floor(color.y * 4.0) / 4.0;
-  color.z = floor(color.z * 4.0) / 4.0;
+  color.x = floor(color.x * 3.0) / 2.0;
+  color.y = floor(color.y * 3.0) / 2.0;
+  color.z = floor(color.z * 3.0) / 2.0;
   return make_color( color );
 }
 
