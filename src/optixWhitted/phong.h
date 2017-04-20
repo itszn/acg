@@ -35,7 +35,6 @@ struct PerRayData_radiance
   float3 result;
   float importance;
   int depth;
-  float intensity;
 };
 
 struct PerRayData_shadow
@@ -66,6 +65,20 @@ static __device__ void phongShadowed()
 }
 
 static
+__device__ float3 discretize(float3 color, float intensity)
+{
+  if (intensity > 0.95)
+    color = make_float3(1.0,1.0,1.0) * color;
+  else if (intensity > 0.5)
+    color = make_float3(0.7,0.7,0.7) * color;
+  else if (intensity > 0.05)
+    color = make_float3(0.35,0.35,0.35) * color;
+  else
+    color = make_float3(0.1,0.1,0.1) * color;
+  return color;
+}
+
+static
 __device__ void phongShade( float3 p_Kd,
                             float3 p_Ka,
                             float3 p_Ks,
@@ -74,12 +87,9 @@ __device__ void phongShade( float3 p_Kd,
                             float3 p_normal )
 {
   float3 hit_point = ray.origin + t_hit * ray.direction;
-  
   // ambient contribution
-
   float3 result = p_Ka * ambient_light_color;
   float intensity = 0.0;
-
   // compute direct lighting
   unsigned int num_lights = lights.size();
   for(int i = 0; i < num_lights; ++i) {
@@ -87,8 +97,6 @@ __device__ void phongShade( float3 p_Kd,
     float Ldist = optix::length(light.pos - hit_point);
     float3 L = optix::normalize(light.pos - hit_point);
     float nDl = optix::dot( p_normal, L);
-    intensity += nDl/num_lights;
-
     // cast shadow ray
     float3 light_attenuation = make_float3(static_cast<float>( nDl > 0.0f ));
     if ( nDl > 0.0f && light.casts_shadow ) {
@@ -98,29 +106,16 @@ __device__ void phongShade( float3 p_Kd,
       rtTrace(top_shadower, shadow_ray, shadow_prd);
       light_attenuation = shadow_prd.attenuation;
     }
-
     // If not completely shadowed, light the hit point
-    if( fmaxf(light_attenuation) > 0.0f ) {
-      float3 Lc = light.color * light_attenuation;
-
-      result += p_Kd * nDl * Lc;
-
-      float3 H = optix::normalize(L - ray.direction);
-      float nDh = optix::dot( p_normal, H );
-      if(nDh > 0) {
-        float power = pow(nDh, p_phong_exp);
-        result += p_Ks * power * Lc;
-      }
-    }
+    if( fmaxf(light_attenuation) > 0.0f )
+      intensity += nDl/num_lights;
   }
-
+#if 0
   if( fmaxf( p_Kr ) > 0 ) {
-
     // ray tree attenuation
     PerRayData_radiance new_prd;             
     new_prd.importance = prd.importance * optix::luminance( p_Kr );
     new_prd.depth = prd.depth + 1;
-
     // reflection ray
     if( new_prd.importance >= 0.01f && new_prd.depth <= max_depth) {
       float3 R = optix::reflect( ray.direction, p_normal );
@@ -129,8 +124,7 @@ __device__ void phongShade( float3 p_Kd,
       result += p_Kr * new_prd.result;
     }
   }
-  
+#endif
   // pass the color back up the tree
-  prd.result = result;
-  prd.intensity = intensity;
+  prd.result = discretize( result, intensity );
 }
