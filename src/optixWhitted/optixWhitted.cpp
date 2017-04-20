@@ -235,6 +235,7 @@ void createGeometry()
 
 
     // Glass material
+#if 0
     const std::string glass_ptx = ptxPath( "glass.cu" );
     Program glass_ch = context->createProgramFromPTXFile( glass_ptx, "closest_hit_radiance" );
     Program glass_ah = context->createProgramFromPTXFile( glass_ptx, "any_hit_shadow" );
@@ -255,6 +256,7 @@ void createGeometry()
     const float3 extinction = make_float3(.83f, .83f, .83f);
     glass_matl["extinction_constant"]->setFloat( log(extinction.x), log(extinction.y), log(extinction.z) );
     glass_matl["shadow_attenuation"]->setFloat( 0.6f, 0.6f, 0.6f );
+#endif
 
     // Metal material
     const std::string metal_ptx = ptxPath( "phong.cu" );
@@ -292,7 +294,9 @@ void createGeometry()
 
     // Create GIs for each piece of geometry
     std::vector<GeometryInstance> gis;
+#if 0
     gis.push_back( context->createGeometryInstance( glass_sphere, &glass_matl, &glass_matl+1 ) );
+#endif
     gis.push_back( context->createGeometryInstance( metal_sphere,  &metal_matl,  &metal_matl+1 ) );
     gis.push_back( context->createGeometryInstance( parallelogram, &floor_matl,  &floor_matl+1 ) );
 
@@ -301,7 +305,9 @@ void createGeometry()
     geometrygroup->setChildCount( static_cast<unsigned int>(gis.size()) );
     geometrygroup->setChild( 0, gis[0] );
     geometrygroup->setChild( 1, gis[1] );
+#if 0
     geometrygroup->setChild( 2, gis[2] );
+#endif
     geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
 
     context["top_object"]->set( geometrygroup );
