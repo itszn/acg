@@ -195,7 +195,7 @@ void createContext()
 
 void createGeometry()
 {
-#if 0
+#if 1
     // Create glass sphere geometry
     const std::string shell_ptx = ptxPath( "sphere_shell.cu" );
     Geometry glass_sphere = context->createGeometry();
@@ -237,7 +237,7 @@ void createGeometry()
 
 
     // Glass material
-#if 0
+#if 1
     const std::string glass_ptx = ptxPath( "glass.cu" );
     Program glass_ch = context->createProgramFromPTXFile( glass_ptx, "closest_hit_radiance" );
     Program glass_ah = context->createProgramFromPTXFile( glass_ptx, "any_hit_shadow" );
@@ -272,7 +272,12 @@ void createGeometry()
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
     metal_matl["toon_exp"]->setFloat( 64 );
+#if 0
+    metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
+#else
     metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
+#endif
+
 
     // Checker material for floor
     const std::string checker_ptx = ptxPath( "checker.cu" );
@@ -296,7 +301,7 @@ void createGeometry()
 
     // Create GIs for each piece of geometry
     std::vector<GeometryInstance> gis;
-#if 0
+#if 1
     gis.push_back( context->createGeometryInstance( glass_sphere, &glass_matl, &glass_matl+1 ) );
 #endif
     gis.push_back( context->createGeometryInstance( metal_sphere,  &metal_matl,  &metal_matl+1 ) );
@@ -307,7 +312,7 @@ void createGeometry()
     geometrygroup->setChildCount( static_cast<unsigned int>(gis.size()) );
     geometrygroup->setChild( 0, gis[0] );
     geometrygroup->setChild( 1, gis[1] );
-#if 0
+#if 1
     geometrygroup->setChild( 2, gis[2] );
 #endif
     geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
