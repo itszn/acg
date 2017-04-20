@@ -89,35 +89,15 @@ RT_PROGRAM void pinhole_camera()
 
   /// perform the conversion to luminosity
   {
-    float3 RGBtoY;
-    RGBtoY.x = 0.2126;
-    RGBtoY.y = 0.7152;
-    RGBtoY.z = 0.0722;
-
-    float3 mult1;
-    mult1.x = 1.00;
-    mult1.y = 1.00;
-    mult1.z = 1.00;
-
-    float3 mult2;
-    mult2.x = 0.70;
-    mult2.y = 0.70;
-    mult2.z = 0.70;
-
-    float3 mult3;
-    mult2.x = 0.35;
-    mult2.y = 0.35;
-    mult2.z = 0.35;
-
-    float3 mult4;
-    mult2.x = 0.10;
-    mult2.y = 0.10;
-    mult2.z = 0.10;
+    float3 RGBtoY; RGBtoY.x = 0.2126; RGBtoY.y = 0.7152; RGBtoY.z = 0.0722;
+    float3 mult1; mult1.x = 1.00; mult1.y = 1.00; mult1.z = 1.00;
+    float3 mult2; mult2.x = 0.70; mult2.y = 0.70; mult2.z = 0.70;
+    float3 mult3; mult3.x = 0.35; mult3.y = 0.35; mult3.z = 0.35;
+    float3 mult4; mult4.x = 0.10; mult4.y = 0.10; mult4.z = 0.10;
 
     float3 color = make_float3(acc_val);
     // convert from RGB to Y to L* (i.e. L*A*B*)
     float intensity = dot(RGBtoY, color);
-    rtPrintf( "intense(%f)\n", intensity);
     if (intensity > 0.95)
         color = mult1 * color;
     else if (intensity > 0.5)
