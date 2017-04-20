@@ -113,9 +113,9 @@ RT_PROGRAM void pinhole_camera()
 #endif
 
   float3 color = make_float3( acc_val );
-  color.x = ceil(color.x);
-  color.y = ceil(color.y);
-  color.z = ceil(color.z);
+  color.x = ceil(color.x * 255.99) / 255.99;
+  color.y = ceil(color.y * 255.99) / 255.99;
+  color.z = ceil(color.z * 255.99) / 255.99;
 
   output_buffer[launch_index] = make_color( color );
   accum_buffer[launch_index] = acc_val;
