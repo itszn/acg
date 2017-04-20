@@ -107,8 +107,11 @@ __device__ void phongShade( float3 p_Kd,
       light_attenuation = shadow_prd.attenuation;
     }
     // If not completely shadowed, light the hit point
-    if( fmaxf(light_attenuation) > 0.0f )
+    if( fmaxf(light_attenuation) > 0.0f ) {
+      float3 Lc = light.color * light_attenuation;
+      result += p_Kd * nDl * Lc;
       intensity += nDl/num_lights;
+    }
   }
 #if 0
   if( fmaxf( p_Kr ) > 0 ) {
