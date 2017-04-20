@@ -52,7 +52,7 @@ rtDeclareVariable(uint2, launch_index, rtLaunchIndex, );
 rtDeclareVariable(uint2, launch_dim,   rtLaunchDim, );
 rtDeclareVariable(float, time_view_scale, , ) = 1e-6f;
 
-RT_PROGRAM float3 make_color_discretized(float3 color)
+static __device__ __inline__ optix::uchar4 make_color_discretized(float3 color)
 {
   color.x = floor(color.x * 4.0) / 4.0;
   color.y = floor(color.y * 4.0) / 4.0;
