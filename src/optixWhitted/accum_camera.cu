@@ -73,6 +73,7 @@ RT_PROGRAM void pinhole_camera()
   PerRayData_radiance prd;
   prd.importance = 1.f;
   prd.depth = 0;
+  prd.intensity = 0;
 
   rtTrace(top_object, ray, prd);
 
@@ -83,7 +84,20 @@ RT_PROGRAM void pinhole_camera()
     acc_val = make_float4(prd.result, 0.f);
   }
 
-  output_buffer[launch_index] = make_color( make_float3( acc_val ) );
+  // discretize the color, based on some cutoff points in intensity
+  float3 color = make_float3( acc_val );
+  float intensity = prd.intensity;
+  if (intensity > 0.95)
+    color = make_float3(1.0,1.0,1.0) * color;
+  else if (intensity > 0.5)
+    color = make_float3(0.7,0.7,0.7) * color;
+  else if (intensity > 0.05)
+    color = make_float3(0.35,0.35,0.35) * color;
+  else
+    color = make_float3(0.1,0.1,0.1) * color;
+  // end color discretization
+
+  output_buffer[launch_index] = make_color( color );
   accum_buffer[launch_index] = acc_val;
 }
 
