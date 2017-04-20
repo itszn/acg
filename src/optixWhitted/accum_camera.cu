@@ -87,6 +87,7 @@ RT_PROGRAM void pinhole_camera()
   //    which are crucial to determine the intensity of the light. Instead we approximate
   //    this using RGB to intensity conversion.
 
+#if 0
   /// perform the conversion to luminosity
   {
     float3 RGBtoY; RGBtoY.x = 0.2126; RGBtoY.y = 0.7152; RGBtoY.z = 0.0722;
@@ -109,8 +110,14 @@ RT_PROGRAM void pinhole_camera()
     output_buffer[launch_index] = make_color( color );
   }
   /// end conversion to luminosity
+#endif
 
-  // TODO: what to do with this?
+  float3 color = make_float3( acc_val );
+  color.x = ceil(color.x);
+  color.y = ceil(color.y);
+  color.z = ceil(color.z);
+
+  output_buffer[launch_index] = make_color( color );
   accum_buffer[launch_index] = acc_val;
 }
 
