@@ -195,6 +195,7 @@ void createContext()
 
 void createGeometry()
 {
+#if 0
     // Create glass sphere geometry
     const std::string shell_ptx = ptxPath( "sphere_shell.cu" );
     Geometry glass_sphere = context->createGeometry();
@@ -204,6 +205,7 @@ void createGeometry()
     glass_sphere["center"]->setFloat( 4.0f, 2.3f, -4.0f );
     glass_sphere["radius1"]->setFloat( 0.96f );
     glass_sphere["radius2"]->setFloat( 1.0f );
+#endif
 
     // Metal sphere geometry
     const std::string sphere_ptx = ptxPath( "sphere.cu" );
@@ -268,7 +270,7 @@ void createGeometry()
     metal_matl->setAnyHitProgram( 1, phong_ah );
     metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
-    metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
+    metal_matl["Ks"]->setFloat( 0.0f, 0.0f, 0.0f );
     metal_matl["phong_exp"]->setFloat( 64 );
     metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
 
