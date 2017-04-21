@@ -198,7 +198,7 @@ void createContext()
 
 void createGeometry()
 {
-#if 1
+#if 0
     // Create glass sphere geometry
     const std::string shell_ptx = ptxPath( "sphere_shell.cu" );
     Geometry glass_sphere = context->createGeometry();
@@ -317,7 +317,7 @@ void createGeometry()
     geometrygroup->setChildCount( static_cast<unsigned int>(gis.size()) );
     geometrygroup->setChild( 0, gis[0] );
     geometrygroup->setChild( 1, gis[1] );
-#if 1
+#if 0
     geometrygroup->setChild( 2, gis[2] );
 #endif
     geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
