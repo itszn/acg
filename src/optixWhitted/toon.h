@@ -162,7 +162,7 @@ __device__ void toonShade( float3 p_Kd,
     //rtTrace(top_object, edge_ray, prd_distance);
     
 
-    if(prd.depth < max_depth) {
+    if(prd.depth < max_depth && false) {
         PerRayData_radiance new_prd;             
         float3 edge_test_dir;
         optix::Ray edge_ray;
