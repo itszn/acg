@@ -51,32 +51,32 @@ rtDeclareVariable(float3, shading_normal, attribute shading_normal, );
 
 RT_PROGRAM void any_hit_shadow()
 {
-  toonShadowed();
+    toonShadowed();
 }
 
 
 RT_PROGRAM void closest_hit_radiance()
 {
-  float3 Kd, Ka, Ks, Kr;
-  float  toon_exp;
+    float3 Kd, Ka, Ks, Kr;
+    float  toon_exp;
 
-  float3 t  = texcoord * inv_checker_size;
-  t.x = floorf(t.x);
-  t.y = floorf(t.y);
-  t.z = floorf(t.z);
+    float3 t  = texcoord * inv_checker_size;
+    t.x = floorf(t.x);
+    t.y = floorf(t.y);
+    t.z = floorf(t.z);
 
-  int which_check = ( static_cast<int>( t.x ) +
-                      static_cast<int>( t.y ) +
-                      static_cast<int>( t.z ) ) & 1;
+    int which_check = ( static_cast<int>( t.x ) +
+            static_cast<int>( t.y ) +
+            static_cast<int>( t.z ) ) & 1;
 
-  if ( which_check ) {
-    Kd = Kd1; Ka = Ka1; Ks = Ks1; Kr = Kr1; toon_exp = toon_exp1;
-  } else {
-    Kd = Kd2; Ka = Ka2; Ks = Ks2; Kr = Kr2; toon_exp = toon_exp2;
-  }
+    if ( which_check ) {
+        Kd = Kd1; Ka = Ka1; Ks = Ks1; Kr = Kr1; toon_exp = toon_exp1;
+    } else {
+        Kd = Kd2; Ka = Ka2; Ks = Ks2; Kr = Kr2; toon_exp = toon_exp2;
+    }
 
-  float3 world_shading_normal   = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, shading_normal));
-  float3 world_geometric_normal = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, geometric_normal));
-  float3 ffnormal  = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
-  toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
+    float3 world_shading_normal   = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, shading_normal));
+    float3 world_geometric_normal = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, geometric_normal));
+    float3 ffnormal  = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
+    toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
 }
