@@ -90,7 +90,7 @@ __device__ float3 discretize(float3 color, float intensity)
 
 static
 __device__ void edgeDetect() {
-    prd.result = make_float3(0.0,0.0,0.0);
+    prd.result = make_float3(1.0,1.0,1.0);
 }
 
     static
