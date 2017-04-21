@@ -267,7 +267,7 @@ void createGeometry()
     const std::string metal_ptx = ptxPath( "toon.cu" );
     Program toon_ch = context->createProgramFromPTXFile( metal_ptx, "closest_hit_radiance" );
     Program toon_ah = context->createProgramFromPTXFile( metal_ptx, "any_hit_shadow" );
-    Program toon_chdist = context->createProgramFromPTXFile( metal_ptx, "any_hit_shadow" );
+    Program toon_chdist = context->createProgramFromPTXFile( metal_ptx, "closest_hit_distance" );
 
     Material metal_matl = context->createMaterial();
     // Set ray type programs
