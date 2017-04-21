@@ -176,8 +176,9 @@ __device__ void toonShade( float3 p_Kd,
                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
         rtTrace(top_object, edge_ray, new_prd);
-        if (new_prd.mode_ret == 1) {
-            result += new_prd.result;
+        if (new_prd.mode_ret != 1) {
+            //result += new_prd.result;
+            result = make_float3(0.0,0.0,0.0);
         }
     }
 
