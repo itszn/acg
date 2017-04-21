@@ -163,6 +163,9 @@ void createContext()
     context["max_depth"]->setInt( 10 );
     context["radiance_ray_type"]->setUint( 0 );
     context["shadow_ray_type"]->setUint( 1 );
+
+    context["distance_ray_type"]->setUint( 2 );
+
     context["frame"]->setUint( 0u );
     context["scene_epsilon"]->setFloat( 1.e-4f );
     context["ambient_light_color"]->setFloat( 0.4f, 0.4f, 0.4f );
@@ -237,7 +240,7 @@ void createGeometry()
 
 
     // Glass material
-#if 1
+#if 0
     const std::string glass_ptx = ptxPath( "glass.cu" );
     Program glass_ch = context->createProgramFromPTXFile( glass_ptx, "closest_hit_radiance" );
     Program glass_ah = context->createProgramFromPTXFile( glass_ptx, "any_hit_shadow" );
@@ -266,8 +269,10 @@ void createGeometry()
     Program toon_ah = context->createProgramFromPTXFile( metal_ptx, "any_hit_shadow" );
 
     Material metal_matl = context->createMaterial();
+    // Set ray type programs
     metal_matl->setClosestHitProgram( 0, toon_ch );
     metal_matl->setAnyHitProgram( 1, toon_ah );
+
     metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
@@ -301,7 +306,7 @@ void createGeometry()
 
     // Create GIs for each piece of geometry
     std::vector<GeometryInstance> gis;
-#if 1
+#if 0
     gis.push_back( context->createGeometryInstance( glass_sphere, &glass_matl, &glass_matl+1 ) );
 #endif
     gis.push_back( context->createGeometryInstance( metal_sphere,  &metal_matl,  &metal_matl+1 ) );
