@@ -153,7 +153,7 @@ __device__ void toonShade( float3 p_Kd,
     optix::Ray edge_ray = optix::make_Ray(hit_point-edge_test_dir*0.1f,
             edge_test_dir, distance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
-    rtTrace(top_object, edge_ray, prd_distance);
+    //rtTrace(top_object, edge_ray, prd_distance);
 
     //rtTrace(
     // pass the color back up the tree

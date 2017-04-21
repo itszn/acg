@@ -47,6 +47,9 @@ RT_PROGRAM void any_hit_shadow()
   toonShadowed();
 }
 
+RT_PROGRAM void closest_hit_distance() {
+
+}
 
 RT_PROGRAM void closest_hit_radiance()
 {
