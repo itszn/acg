@@ -59,6 +59,8 @@ RT_PROGRAM void closest_hit_radiance()
 
         float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
         toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
+    } else if (prd.mode == 1) {
+        edgeDetect();
     }
 }
 

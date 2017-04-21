@@ -90,7 +90,7 @@ __device__ float3 discretize(float3 color, float intensity)
 
 static
 __device__ void edgeDetect() {
-    
+    prd.result = make_float3(0.0,0.0,0.0);
 }
 
     static
@@ -159,6 +159,7 @@ __device__ void toonShade( float3 p_Kd,
     //        edge_test_dir, distance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
     //rtTrace(top_object, edge_ray, prd_distance);
     
+
     if(prd.depth < max_depth) {
         float3 edge_test_dir = ray.direction;
         edge_test_dir.x += 0.1f;
@@ -166,6 +167,7 @@ __device__ void toonShade( float3 p_Kd,
 
         PerRayData_radiance new_prd;             
         new_prd.depth = max_depth+1;
+        new_prd.mode = 1;
 
         optix::Ray edge_ray = optix::make_Ray(hit_point-ray.direction*1.0f,
                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
