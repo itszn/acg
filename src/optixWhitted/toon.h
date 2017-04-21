@@ -88,6 +88,11 @@ __device__ float3 discretize(float3 color, float intensity)
     return color;
 }
 
+static
+__device__ void edgeDetect() {
+    
+}
+
     static
 __device__ void toonShade( float3 p_Kd,
         float3 p_Ka, //ambiance

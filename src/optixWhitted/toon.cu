@@ -44,7 +44,7 @@ rtDeclareVariable(float3, shading_normal, attribute shading_normal, );
 
 RT_PROGRAM void any_hit_shadow()
 {
-  toonShadowed();
+    toonShadowed();
 }
 
 RT_PROGRAM void closest_hit_distance() {
@@ -53,11 +53,13 @@ RT_PROGRAM void closest_hit_distance() {
 
 RT_PROGRAM void closest_hit_radiance()
 {
-  float3 world_shading_normal   = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, shading_normal ) );
-  float3 world_geometric_normal = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, geometric_normal ) );
+    if (prd.mode == 0) {
+        float3 world_shading_normal   = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, shading_normal ) );
+        float3 world_geometric_normal = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, geometric_normal ) );
 
-  float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
-  toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
+        float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
+        toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
+    }
 }
 
 
@@ -66,11 +68,11 @@ rtDeclareVariable(float3, texcoord, attribute texcoord, );
 
 RT_PROGRAM void closest_hit_radiance_textured()
 {
-  float3 world_shading_normal   = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, shading_normal ) );
-  float3 world_geometric_normal = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, geometric_normal ) );
-  
-  float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
+    float3 world_shading_normal   = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, shading_normal ) );
+    float3 world_geometric_normal = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, geometric_normal ) );
 
-  const float3 Kd_val = make_float3( tex2D( Kd_map, texcoord.x, texcoord.y ) );
-  toonShade( Kd_val, Ka, Ks, Kr, toon_exp, ffnormal );
+    float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
+
+    const float3 Kd_val = make_float3( tex2D( Kd_map, texcoord.x, texcoord.y ) );
+    toonShade( Kd_val, Ka, Ks, Kr, toon_exp, ffnormal );
 }
