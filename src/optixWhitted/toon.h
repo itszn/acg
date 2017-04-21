@@ -148,22 +148,24 @@ __device__ void toonShade( float3 p_Kd,
 
     //unsigned int seed = tea<16>(screen.x*launch_index.y+launch_index.x, frame);
 
-    float3 edge_test_dir = ray.direction;
 
     //optix::Ray edge_ray = optix::make_Ray(hit_point-edge_test_dir*0.1f,
     //        edge_test_dir, distance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
     //rtTrace(top_object, edge_ray, prd_distance);
     
-    PerRayData_radiance new_prd;             
-    new_prd.depth = max_depth;
+    if(prd.depth < max_depth) {
+        float3 edge_test_dir = ray.direction;
+        PerRayData_radiance new_prd;             
+        new_prd.depth = max_depth+1;
 
-    optix::Ray edge_ray = optix::make_Ray(hit_point-edge_test_dir*0.1f,
-            edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+        optix::Ray edge_ray = optix::make_Ray(hit_point-edge_test_dir*0.1f,
+                edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
-    rtTrace(top_object, edge_ray, new_prd);
+        rtTrace(top_object, edge_ray, new_prd);
+        result += new_prd.result;
+    }
 
     //rtTrace(
     // pass the color back up the tree
-    //result *= ray.attenuation;
     prd.result = discretize( result, intensity );
 }
