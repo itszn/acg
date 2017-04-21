@@ -35,11 +35,11 @@ using namespace optix;
 
 struct PerRayData_radiance
 {
-  float3 result;
-  float  importance;
-  int    depth;
-  int mode;
-  int mode_ret;
+    float3 result;
+    float  importance;
+    int    depth;
+    int mode;
+    int mode_ret;
 };
 
 rtDeclareVariable(float3,        eye, , );
@@ -58,43 +58,43 @@ rtDeclareVariable(uint2,         launch_index, rtLaunchIndex, );
 RT_PROGRAM void pinhole_camera()
 {
 
-  size_t2 screen = output_buffer.size();
-  unsigned int seed = tea<16>(screen.x*launch_index.y+launch_index.x, frame);
+    size_t2 screen = output_buffer.size();
+    unsigned int seed = tea<16>(screen.x*launch_index.y+launch_index.x, frame);
 
-  // Subpixel jitter: send the ray through a different position inside the pixel each time,
-  // to provide antialiasing.
-  float2 subpixel_jitter = frame == 0 ? make_float2(0.0f, 0.0f) : make_float2(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
+    // Subpixel jitter: send the ray through a different position inside the pixel each time,
+    // to provide antialiasing.
+    float2 subpixel_jitter = frame == 0 ? make_float2(0.0f, 0.0f) : make_float2(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
 
-  float2 d = (make_float2(launch_index) + subpixel_jitter) / make_float2(screen) * 2.f - 1.f;
-  float3 ray_origin = eye;
-  float3 ray_direction = normalize(d.x*U + d.y*V + W);
-  
-  optix::Ray ray(ray_origin, ray_direction, radiance_ray_type, scene_epsilon );
+    float2 d = (make_float2(launch_index) + subpixel_jitter) / make_float2(screen) * 2.f - 1.f;
+    float3 ray_origin = eye;
+    float3 ray_direction = normalize(d.x*U + d.y*V + W);
 
-  PerRayData_radiance prd;
-  prd.importance = 1.f;
-  prd.depth = 0;
-  prd.mode = 0;
-  prd.mode_ret = 0;
+    optix::Ray ray(ray_origin, ray_direction, radiance_ray_type, scene_epsilon );
 
-  rtTrace(top_object, ray, prd);
+    PerRayData_radiance prd;
+    prd.importance = 1.f;
+    prd.depth = 0;
+    prd.mode = 0;
+    prd.mode_ret = 0;
 
-  
+    rtTrace(top_object, ray, prd);
 
-  float4 acc_val = accum_buffer[launch_index];
-  if( frame > 0 ) {
-    acc_val = lerp( acc_val, make_float4( prd.result, 0.f), 1.0f / static_cast<float>( frame+1 ) );
-  } else {
-    acc_val = make_float4(prd.result, 0.f);
-  }
 
-  output_buffer[launch_index] = make_color( make_float3( acc_val ) );
-  accum_buffer[launch_index] = acc_val;
+
+    float4 acc_val = accum_buffer[launch_index];
+    if( frame > 0 ) {
+        acc_val = lerp( acc_val, make_float4( prd.result, 0.f), 1.0f / static_cast<float>( frame+1 ) );
+    } else {
+        acc_val = make_float4(prd.result, 0.f);
+    }
+
+    output_buffer[launch_index] = make_color( make_float3( acc_val ) );
+    accum_buffer[launch_index] = acc_val;
 }
 
 RT_PROGRAM void exception()
 {
-  const unsigned int code = rtGetExceptionCode();
-  rtPrintf( "Caught exception 0x%X at launch index (%d,%d)\n", code, launch_index.x, launch_index.y );
-  output_buffer[launch_index] = make_color( bad_color );
+    const unsigned int code = rtGetExceptionCode();
+    rtPrintf( "Caught exception 0x%X at launch index (%d,%d)\n", code, launch_index.x, launch_index.y );
+    output_buffer[launch_index] = make_color( bad_color );
 }

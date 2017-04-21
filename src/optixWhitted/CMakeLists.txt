@@ -34,13 +34,10 @@ if(GLUT_FOUND AND OPENGL_FOUND)
 
     OPTIX_add_sample_executable( optixWhitted 
         optixWhitted.cpp
-        sphere_shell.cu
-
         accum_camera.cu
         checker.cu
         commonStructs.h
         constantbg.cu
-        glass.cu
         helpers.h
         parallelogram.cu
         toon.cu

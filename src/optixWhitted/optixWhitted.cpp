@@ -49,7 +49,6 @@
 
 #include <sutil.h>
 #include "commonStructs.h"
-#include <Arcball.h>
 
 #include <cstring>
 #include <iostream>
@@ -76,11 +75,6 @@ float3       camera_lookat;
 float3       camera_eye;
 Matrix4x4    camera_rotate;
 bool         camera_dirty = true;  // Do camera params need to be copied to OptiX context
-sutil::Arcball arcball;
-
-// Mouse state
-int2       mouse_prev_pos;
-int        mouse_button;
 
 
 //------------------------------------------------------------------------------
@@ -92,20 +86,14 @@ int        mouse_button;
 std::string ptxPath( const std::string& cuda_file );
 Buffer getOutputBuffer();
 void destroyContext();
-void registerExitHandler();
 void createContext();
 void createGeometry();
 void setupCamera();
 void setupLights();
 void updateCamera();
 void glutInitialize( int* argc, char** argv );
-void glutRun();
 
 void glutDisplay();
-void glutKeyboardPress( unsigned char k, int x, int y );
-void glutMousePress( int button, int state, int x, int y );
-void glutMouseMotion( int x, int y);
-void glutResize( int w, int h );
 
 
 //------------------------------------------------------------------------------
@@ -123,33 +111,18 @@ std::string ptxPath( const std::string& cuda_file )
         ".ptx";
 }
 
-
 Buffer getOutputBuffer()
 {
     return context[ "output_buffer" ]->getBuffer();
 }
 
-
 void destroyContext()
 {
-    if( context )
-    {
+    if( context ) {
         context->destroy();
         context = 0;
     }
 }
-
-
-void registerExitHandler()
-{
-    // register shutdown handler
-#ifdef _WIN32
-    glutCloseFunc( destroyContext );  // this function is freeglut-only
-#else
-    atexit( destroyContext );
-#endif
-}
-
 
 void createContext()
 {
@@ -195,21 +168,8 @@ void createContext()
     context["bg_color"]->setFloat( 0.34f, 0.55f, 0.85f );
 }
 
-
 void createGeometry()
 {
-#if 0
-    // Create glass sphere geometry
-    const std::string shell_ptx = ptxPath( "sphere_shell.cu" );
-    Geometry glass_sphere = context->createGeometry();
-    glass_sphere->setPrimitiveCount( 1u );
-    glass_sphere->setBoundingBoxProgram( context->createProgramFromPTXFile( shell_ptx, "bounds" ) );
-    glass_sphere->setIntersectionProgram( context->createProgramFromPTXFile( shell_ptx, "intersect" ) );
-    glass_sphere["center"]->setFloat( 4.0f, 2.3f, -4.0f );
-    glass_sphere["radius1"]->setFloat( 0.96f );
-    glass_sphere["radius2"]->setFloat( 1.0f );
-#endif
-
     // Metal sphere geometry
     const std::string sphere_ptx = ptxPath( "sphere.cu" );
     Geometry metal_sphere = context->createGeometry();
@@ -238,31 +198,6 @@ void createGeometry()
     parallelogram["v2"]->setFloat( v2 );
     parallelogram["anchor"]->setFloat( anchor );
 
-
-    // Glass material
-#if 0
-    const std::string glass_ptx = ptxPath( "glass.cu" );
-    Program glass_ch = context->createProgramFromPTXFile( glass_ptx, "closest_hit_radiance" );
-    Program glass_ah = context->createProgramFromPTXFile( glass_ptx, "any_hit_shadow" );
-    Material glass_matl = context->createMaterial();
-    glass_matl->setClosestHitProgram( 0, glass_ch );
-    glass_matl->setAnyHitProgram( 1, glass_ah );
-
-    glass_matl["importance_cutoff"]->setFloat( 1e-2f );
-    glass_matl["cutoff_color"]->setFloat( 0.034f, 0.055f, 0.085f );
-    glass_matl["fresnel_exponent"]->setFloat( 3.0f );
-    glass_matl["fresnel_minimum"]->setFloat( 0.1f );
-    glass_matl["fresnel_maximum"]->setFloat( 1.0f );
-    glass_matl["refraction_index"]->setFloat( 1.4f );
-    glass_matl["refraction_color"]->setFloat( 1.0f, 1.0f, 1.0f );
-    glass_matl["reflection_color"]->setFloat( 1.0f, 1.0f, 1.0f );
-    glass_matl["refraction_maxdepth"]->setInt( 10 );
-    glass_matl["reflection_maxdepth"]->setInt( 5 );
-    const float3 extinction = make_float3(.83f, .83f, .83f);
-    glass_matl["extinction_constant"]->setFloat( log(extinction.x), log(extinction.y), log(extinction.z) );
-    glass_matl["shadow_attenuation"]->setFloat( 0.6f, 0.6f, 0.6f );
-#endif
-
     // Metal material
     const std::string metal_ptx = ptxPath( "toon.cu" );
     Program toon_ch = context->createProgramFromPTXFile( metal_ptx, "closest_hit_radiance" );
@@ -284,7 +219,6 @@ void createGeometry()
 #else
     metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
 #endif
-
 
     // Checker material for floor
     const std::string checker_ptx = ptxPath( "checker.cu" );
@@ -308,9 +242,6 @@ void createGeometry()
 
     // Create GIs for each piece of geometry
     std::vector<GeometryInstance> gis;
-#if 0
-    gis.push_back( context->createGeometryInstance( glass_sphere, &glass_matl, &glass_matl+1 ) );
-#endif
     gis.push_back( context->createGeometryInstance( metal_sphere,  &metal_matl,  &metal_matl+1 ) );
     gis.push_back( context->createGeometryInstance( parallelogram, &floor_matl,  &floor_matl+1 ) );
 
@@ -319,16 +250,12 @@ void createGeometry()
     geometrygroup->setChildCount( static_cast<unsigned int>(gis.size()) );
     geometrygroup->setChild( 0, gis[0] );
     geometrygroup->setChild( 1, gis[1] );
-#if 0
-    geometrygroup->setChild( 2, gis[2] );
-#endif
     geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
 
     context["top_object"]->set( geometrygroup );
     context["top_shadower"]->set( geometrygroup );
 
 }
-
 
 void setupCamera()
 {
@@ -340,10 +267,8 @@ void setupCamera()
     camera_dirty = true;
 }
 
-
 void setupLights()
 {
-
     BasicLight lights[] = {
         { make_float3( 60.0f, 40.0f, 0.0f ), make_float3( 1.0f, 1.0f, 1.0f ), 1 }
     };
@@ -397,7 +322,6 @@ void updateCamera()
     camera_dirty = false;
 }
 
-
 void glutInitialize( int* argc, char** argv )
 {
     glutInit( argc, argv );
@@ -407,40 +331,6 @@ void glutInitialize( int* argc, char** argv )
     glutCreateWindow( SAMPLE_NAME );
     glutHideWindow();
 }
-
-
-void glutRun()
-{
-    // Initialize GL state
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, 1, 0, 1, -1, 1 );
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glViewport(0, 0, width, height);
-
-    glutShowWindow();
-    glutReshapeWindow( width, height);
-
-    // register glut callbacks
-    glutDisplayFunc( glutDisplay );
-    glutIdleFunc( glutDisplay );
-    glutReshapeFunc( glutResize );
-    glutKeyboardFunc( glutKeyboardPress );
-    glutMouseFunc( glutMousePress );
-    glutMotionFunc( glutMouseMotion );
-
-    registerExitHandler();
-
-    glutMainLoop();
-}
-
-
-//------------------------------------------------------------------------------
-//
-//  GLUT callbacks
-//
-//------------------------------------------------------------------------------
 
 void glutDisplay()
 {
@@ -463,96 +353,6 @@ void glutDisplay()
     glutSwapBuffers();
 }
 
-
-void glutKeyboardPress( unsigned char k, int x, int y )
-{
-    switch( k )
-    {
-        case( 'q' ):
-        case( 27 ): // ESC
-        {
-            destroyContext();
-            exit(0);
-        }
-        case( 's' ):
-        {
-            const std::string outputImage = std::string(SAMPLE_NAME) + ".ppm";
-            std::cerr << "Saving current frame to '" << outputImage << "'\n";
-            sutil::displayBufferPPM( outputImage.c_str(), getOutputBuffer() );
-            break;
-        }
-    }
-}
-
-
-void glutMousePress( int button, int state, int x, int y )
-{
-    if( state == GLUT_DOWN )
-    {
-        mouse_button = button;
-        mouse_prev_pos = make_int2( x, y );
-    }
-    else
-    {
-        // nothing
-    }
-}
-
-
-void glutMouseMotion( int x, int y)
-{
-    if( mouse_button == GLUT_RIGHT_BUTTON )
-    {
-        const float dx = static_cast<float>( x - mouse_prev_pos.x ) /
-                         static_cast<float>( width );
-        const float dy = static_cast<float>( y - mouse_prev_pos.y ) /
-                         static_cast<float>( height );
-        const float dmax = fabsf( dx ) > fabs( dy ) ? dx : dy;
-        const float scale = fminf( dmax, 0.9f );
-        camera_eye = camera_eye + (camera_lookat - camera_eye)*scale;
-        camera_dirty = true;
-    }
-    else if( mouse_button == GLUT_LEFT_BUTTON )
-    {
-        const float2 from = { static_cast<float>(mouse_prev_pos.x),
-                              static_cast<float>(mouse_prev_pos.y) };
-        const float2 to   = { static_cast<float>(x),
-                              static_cast<float>(y) };
-
-        const float2 a = { from.x / width, from.y / height };
-        const float2 b = { to.x   / width, to.y   / height };
-
-        camera_rotate = arcball.rotate( b, a );
-        camera_dirty = true;
-    }
-
-    mouse_prev_pos = make_int2( x, y );
-}
-
-
-void glutResize( int w, int h )
-{
-    width  = w;
-    height = h;
-    camera_dirty = true;
-
-    sutil::resizeBuffer( getOutputBuffer(), width, height );
-    sutil::resizeBuffer( context[ "accum_buffer" ]->getBuffer(), width, height );
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, 1, 0, 1, -1, 1);
-    glViewport(0, 0, width, height);
-    glutPostRedisplay();
-}
-
-
-//------------------------------------------------------------------------------
-//
-// Main
-//
-//------------------------------------------------------------------------------
-
 void printUsageAndExit( const std::string& argv0 )
 {
     std::cerr << "\nUsage: " << argv0 << " [options]\n";
@@ -560,53 +360,32 @@ void printUsageAndExit( const std::string& argv0 )
         "App Options:\n"
         "  -h | --help         Print this usage message and exit.\n"
         "  -f | --file         Save single frame to file and exit.\n"
-        "  -n | --nopbo        Disable GL interop for display buffer.\n"
-        "App Keystrokes:\n"
-        "  q  Quit\n"
-        "  s  Save image to '" << SAMPLE_NAME << ".ppm'\n"
+        "  -n | --nopbo        Disable GL interop for display buffer."
         << std::endl;
-
     exit(1);
 }
 
 int main( int argc, char** argv )
 {
     std::string out_file;
-    for( int i=1; i<argc; ++i )
-    {
+    for( int i=1; i<argc; ++i ) {
         const std::string arg( argv[i] );
-
         if( arg == "-h" || arg == "--help" )
-        {
             printUsageAndExit( argv[0] );
-        }
-        else if( arg == "-f" || arg == "--file"  )
-        {
+        else if( arg == "-f" || arg == "--file"  ) {
             if( i == argc-1 )
-            {
-                std::cerr << "Option '" << arg << "' requires additional argument.\n";
                 printUsageAndExit( argv[0] );
-            }
             out_file = argv[++i];
-        }
-        else if( arg == "-n" || arg == "--nopbo"  )
-        {
+        } else if( arg == "-n" || arg == "--nopbo" )
             use_pbo = false;
-        }
         else
-        {
-            std::cerr << "Unknown option '" << arg << "'\n";
             printUsageAndExit( argv[0] );
-        }
     }
-
-    try
-    {
+    if (out_file.empty())
+        printUsageAndExit( argv[0] );
+    try {
         glutInitialize( &argc, argv );
-
-#ifndef __APPLE__
         glewInit();
-#endif
 
         createContext();
         createGeometry();
@@ -615,19 +394,11 @@ int main( int argc, char** argv )
 
         context->validate();
 
-        if ( out_file.empty() )
-        {
-            glutRun();
-        }
-        else
-        {
-            updateCamera();
-            context->launch( 0, width, height );
-            sutil::displayBufferPPM( out_file.c_str(), getOutputBuffer() );
-            destroyContext();
-        }
+        updateCamera();
+        context->launch( 0, width, height );
+        sutil::displayBufferPPM( out_file.c_str(), getOutputBuffer() );
+        destroyContext();
         return 0;
-    }
-    SUTIL_CATCH( context->get() )
+    } SUTIL_CATCH( context->get() )
 }
 
