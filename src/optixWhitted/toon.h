@@ -156,10 +156,13 @@ __device__ void toonShade( float3 p_Kd,
     
     if(prd.depth < max_depth) {
         float3 edge_test_dir = ray.direction;
+        edge_test_dir.x += 0.1f;
+        edge_test_dir = optix::normalize(edge_test_dir);
+
         PerRayData_radiance new_prd;             
         new_prd.depth = max_depth+1;
 
-        optix::Ray edge_ray = optix::make_Ray(hit_point-edge_test_dir*0.1f,
+        optix::Ray edge_ray = optix::make_Ray(hit_point-ray.direction*1.0f,
                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
         rtTrace(top_object, edge_ray, new_prd);
