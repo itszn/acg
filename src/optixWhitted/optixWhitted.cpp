@@ -267,13 +267,13 @@ void createGeometry()
     const std::string metal_ptx = ptxPath( "toon.cu" );
     Program toon_ch = context->createProgramFromPTXFile( metal_ptx, "closest_hit_radiance" );
     Program toon_ah = context->createProgramFromPTXFile( metal_ptx, "any_hit_shadow" );
-    Program toon_chdist = context->createProgramFromPTXFile( metal_ptx, "closest_hit_distance" );
+    //Program toon_chdist = context->createProgramFromPTXFile( metal_ptx, "closest_hit_distance" );
 
     Material metal_matl = context->createMaterial();
     // Set ray type programs
     metal_matl->setClosestHitProgram( 0, toon_ch );
     metal_matl->setAnyHitProgram( 1, toon_ah );
-    metal_matl->setClosestHitProgram( 2, toon_chdist );
+    //metal_matl->setClosestHitProgram( 2, toon_chdist );
 
     metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
