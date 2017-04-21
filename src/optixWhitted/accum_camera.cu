@@ -39,6 +39,7 @@ struct PerRayData_radiance
   float  importance;
   int    depth;
   int mode;
+  int mode_ret;
 };
 
 rtDeclareVariable(float3,        eye, , );
@@ -74,6 +75,7 @@ RT_PROGRAM void pinhole_camera()
   prd.importance = 1.f;
   prd.depth = 0;
   prd.mode = 0;
+  prd.mode_ret = 0;
 
   rtTrace(top_object, ray, prd);
 

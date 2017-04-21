@@ -35,6 +35,7 @@ struct PerRayData_radiance
     float3 result; float importance;
     int depth;
     int mode;
+    int mode_ret;
 };
 
 struct PerRayData_shadow
@@ -91,6 +92,7 @@ __device__ float3 discretize(float3 color, float intensity)
 static
 __device__ void edgeDetect() {
     prd.result = make_float3(1.0,1.0,1.0);
+    prd.mode_ret = 1;
 }
 
     static
@@ -168,12 +170,15 @@ __device__ void toonShade( float3 p_Kd,
         PerRayData_radiance new_prd;             
         new_prd.depth = max_depth+1;
         new_prd.mode = 1;
+        new_prd.mode_ret = 0;
 
         optix::Ray edge_ray = optix::make_Ray(hit_point-ray.direction*1.0f,
                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
         rtTrace(top_object, edge_ray, new_prd);
-        result += new_prd.result;
+        if (new_prd.mode_ret == 1) {
+            result += new_prd.result;
+        }
     }
 
     //rtTrace(
