@@ -65,16 +65,7 @@ RT_PROGRAM void closest_hit_radiance()
     t.y = floorf(t.y);
     t.z = floorf(t.z);
 
-    int which_check = ( static_cast<int>( t.x ) +
-            static_cast<int>( t.y ) +
-            static_cast<int>( t.z ) ) & 1;
-
-    if ( which_check ) {
-        Kd = Kd1; Ka = Ka1; Ks = Ks1; Kr = Kr1; toon_exp = toon_exp1;
-    } else {
-        Kd = Kd2; Ka = Ka2; Ks = Ks2; Kr = Kr2; toon_exp = toon_exp2;
-    }
-
+    Kd = Kd2; Ka = Ka2; Ks = Ks2; Kr = Kr2; toon_exp = toon_exp2;
     if (prd.mode == 0) {
         float3 world_shading_normal   = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, shading_normal));
         float3 world_geometric_normal = normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, geometric_normal));
