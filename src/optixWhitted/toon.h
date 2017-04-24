@@ -163,7 +163,7 @@ __device__ void toonShade( float3 p_Kd,
     
 
     if(prd.depth < max_depth) {
-        for(int i = 0; i < 100; ++i) {
+        //for(int i = 0; i < 100; ++i) {
         PerRayData_radiance new_prd;             
         float3 edge_test_dir;
         optix::Ray edge_ray;
