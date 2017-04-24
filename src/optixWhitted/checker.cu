@@ -73,8 +73,6 @@ RT_PROGRAM void closest_hit_radiance()
 
         toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
     } else if (prd.mode == 1) {
-        //edgeDetect();
-        prd.result = make_float3(0.0,0.0,0.0);
-        prd.mode_ret = 1;
+        edgeDetect();
     }
 }

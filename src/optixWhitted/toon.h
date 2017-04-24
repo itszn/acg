@@ -55,8 +55,6 @@ rtDeclareVariable(float3,            ambient_light_color, , );
 rtDeclareVariable(unsigned int,      radiance_ray_type, , );
 rtDeclareVariable(unsigned int,      shadow_ray_type, , );
 
-rtDeclareVariable(unsigned int,      distance_ray_type, , );
-
 rtDeclareVariable(float,             scene_epsilon, , );
 rtDeclareVariable(rtObject,          top_object, , );
 rtDeclareVariable(rtObject,          top_shadower, , );
@@ -65,8 +63,6 @@ rtDeclareVariable(optix::Ray, ray, rtCurrentRay, );
 rtDeclareVariable(float, t_hit, rtIntersectionDistance, );
 rtDeclareVariable(PerRayData_radiance, prd, rtPayload, );
 rtDeclareVariable(PerRayData_shadow,   prd_shadow, rtPayload, );
-
-rtDeclareVariable(PerRayData_distance,   prd_distance, rtPayload, );
 
 static __device__ void toonShadowed()
 {
@@ -91,7 +87,7 @@ __device__ float3 discretize(float3 color, float intensity)
 
 static
 __device__ void edgeDetect() {
-    prd.result = make_float3(1.0,1.0,1.0);
+    prd.result = make_float3(t_hit,1.0,1.0);
     prd.mode_ret = 1;
 }
 
@@ -180,7 +176,7 @@ __device__ void toonShade( float3 p_Kd,
                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
         rtTrace(top_object, edge_ray, new_prd);
-        if (new_prd.mode_ret != 1 || new_prd.result.x < 0.9) {
+        if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.01) {
             //result += new_prd.result;
             result = make_float3(0.0,0.0,0.0);
         }
