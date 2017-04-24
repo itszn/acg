@@ -162,7 +162,8 @@ __device__ void toonShade( float3 p_Kd,
     //rtTrace(top_object, edge_ray, prd_distance);
     
 
-    if(prd.depth < max_depth && false) {
+    if(prd.depth < max_depth) {
+        for(int i = 0; i < 100; ++i) {
         PerRayData_radiance new_prd;             
         float3 edge_test_dir;
         optix::Ray edge_ray;
@@ -179,58 +180,7 @@ __device__ void toonShade( float3 p_Kd,
                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
         rtTrace(top_object, edge_ray, new_prd);
-        if (new_prd.mode_ret != 1) {
-            //result += new_prd.result;
-            result = make_float3(0.0,0.0,0.0);
-        }
-
-        edge_test_dir = ray.direction;
-        edge_test_dir.x -= 0.1f;
-        edge_test_dir = optix::normalize(edge_test_dir);
-
-        new_prd.depth = max_depth+1;
-        new_prd.mode = 1;
-        new_prd.mode_ret = 0;
-
-        edge_ray = optix::make_Ray(hit_point-ray.direction*1.0f,
-                edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-
-        rtTrace(top_object, edge_ray, new_prd);
-        if (new_prd.mode_ret != 1) {
-            //result += new_prd.result;
-            result = make_float3(0.0,0.0,0.0);
-        }
-
-        edge_test_dir = ray.direction;
-        edge_test_dir.y -= 0.1f;
-        edge_test_dir = optix::normalize(edge_test_dir);
-
-        new_prd.depth = max_depth+1;
-        new_prd.mode = 1;
-        new_prd.mode_ret = 0;
-
-        edge_ray = optix::make_Ray(hit_point-ray.direction*1.0f,
-                edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-
-        rtTrace(top_object, edge_ray, new_prd);
-        if (new_prd.mode_ret != 1) {
-            //result += new_prd.result;
-            result = make_float3(0.0,0.0,0.0);
-        }
-
-        edge_test_dir = ray.direction;
-        edge_test_dir.y += 0.1f;
-        edge_test_dir = optix::normalize(edge_test_dir);
-
-        new_prd.depth = max_depth+1;
-        new_prd.mode = 1;
-        new_prd.mode_ret = 0;
-
-        edge_ray = optix::make_Ray(hit_point-ray.direction*1.0f,
-                edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-
-        rtTrace(top_object, edge_ray, new_prd);
-        if (new_prd.mode_ret != 1) {
+        if (new_prd.mode_ret != 1 || new_prd.result.x < 0.9) {
             //result += new_prd.result;
             result = make_float3(0.0,0.0,0.0);
         }
