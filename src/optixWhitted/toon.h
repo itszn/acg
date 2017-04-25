@@ -141,7 +141,7 @@ __device__ void toonShade( float3 p_Kd,
         new_prd.importance = prd.importance * optix::luminance( p_Kr );
         new_prd.depth = prd.depth + 1;
         // reflection ray
-        if( new_prd.importance >= 0.001f && new_prd.depth <= max_depth) {
+        if( new_prd.importance >= 0.001f && new_prd.depth <= max_depth+1) {
             float3 R = optix::reflect( ray.direction, p_normal );
             optix::Ray refl_ray = optix::make_Ray( hit_point, R, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX );
             rtTrace(top_object, refl_ray, new_prd);
