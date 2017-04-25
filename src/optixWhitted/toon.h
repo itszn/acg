@@ -164,7 +164,7 @@ __device__ void toonShade( float3 p_Kd,
         float3 edge_test_dir;
         optix::Ray edge_ray;
 
-        for(int i = 0; i < 100; ++i) {
+        for(int i = 0; i < 1000; ++i) {
             unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
             float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
 
