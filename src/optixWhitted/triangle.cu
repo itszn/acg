@@ -20,20 +20,19 @@ RT_PROGRAM void robust_intersect(int primIdx)
     float t = (d - dot(n, ray.origin)) / dot(n, ray.direction);
     if (t < 0.00001)
         return;
-    if (rtPotentialIntersection(t)) {
-        // check that point is within triangle
-        float3 p = ray.direction * t + ray.origin;
-        float3 tmp[3] = { x, y, z };
-        for (int i = 0; i < 3; ++i) {
-            float3 v1 = tmp[i] - p;
-            float3 v2 = tmp[(i+1) % 3] - p;
-            float3 n = normalize(cross(v2, v1));
-            float d = dot(-ray.origin, n);
-            if (dot(p,n) + d < 0)
-                return;
-        }
-        rtReportIntersection(0);
+    // check that point is within triangle
+    float3 p = ray.direction * t + ray.origin;
+    float3 tmp[3] = { x, y, z };
+    for (int i = 0; i < 3; ++i) {
+        float3 v1 = tmp[i] - p;
+        float3 v2 = tmp[(i+1) % 3] - p;
+        float3 n = normalize(cross(v2, v1));
+        float d = dot(-ray.origin, n);
+        if (dot(p,n) + d < 0)
+            return;
     }
+    if (rtPotentialIntersection(t))
+        rtReportIntersection(0);
 }
 
 
