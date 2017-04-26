@@ -92,6 +92,7 @@ auto create_triangle(Context &context,
                      const std::tuple<float, float, float> &y,
                      const std::tuple<float, float, float> &z) -> GeometryInstance
 {
+    std::cout << "[+] create_triangle" << std::endl;
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
     std::string triangle_ptx = ptxPath("triangle.cu");
     Geometry triangle = context->createGeometry();
@@ -143,7 +144,6 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
         } else if (op == "f") {
             unsigned int x, y, z;
             obj >> x >> y >> z;
-            std::cout << vertices.size() << " " << x << " " << y << " " << z << std::endl;
             triangles.push_back(
                     create_triangle(c,
                         vertices.at(x),

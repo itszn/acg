@@ -43,7 +43,7 @@ if(GLUT_FOUND AND OPENGL_FOUND)
         toon.cu
         toon.h
         random.h
-        sphere.cu
+        triangle.cu
         )
 else()
     # GLUT or OpenGL not found
