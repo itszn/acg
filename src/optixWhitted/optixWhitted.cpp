@@ -127,8 +127,10 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
     std::cout << "[+] parse_obj_file" << std::endl;
     // parse the obj file
     std::ifstream obj(path.c_str());
-    if (!obj)
+    if (!obj) {
+        std::cerr << "[-] could not find file " << path << std::endl;
         throw std::runtime_error("Could not open file");
+    }
     std::vector<std::tuple<float, float, float>> vertices;
     std::vector<GeometryInstance> triangles;
 
