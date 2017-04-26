@@ -195,6 +195,9 @@ auto create_context() -> Context
     Program exception_program = context->createProgramFromPTXFile(ptx_path, "exception");
     context->setExceptionProgram(0, exception_program);
     context["bad_color"]->setFloat(1.0f, 0.0f, 1.0f);
+    // I heard online this was useful
+    context->setPrintEnabled(true);
+    context->setPrintBufferSize(1024);
 
     // Miss program
     ptx_path = ptxPath("constantbg.cu");

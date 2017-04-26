@@ -79,8 +79,6 @@ RT_PROGRAM void pinhole_camera()
 
     rtTrace(top_object, ray, prd);
 
-
-
     float4 acc_val = accum_buffer[launch_index];
     if( frame > 0 ) {
         acc_val = lerp( acc_val, make_float4( prd.result, 0.f), 1.0f / static_cast<float>( frame+1 ) );
