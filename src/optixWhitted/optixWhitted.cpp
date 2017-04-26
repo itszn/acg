@@ -1,3 +1,11 @@
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <tuple>
+#include <vector>
+
 #ifdef __APPLE__
 #  include <GLUT/glut.h>
 #else
@@ -16,17 +24,129 @@
 #include <sutil.h>
 #include "commonStructs.h"
 
-#include <iostream>
-#include <cstdint>
-#include <cstdlib>
-#include <vector>
-#include <cstring>
-#include <tuple>
-
 using namespace optix;
 
 const uint32_t width  = 768u;
 const uint32_t height = 768u;
+
+auto ptxPath(const std::string& cuda_file) -> std::string;
+auto parse_obj_file(std::string path, Context &c)
+    -> std::vector<GeometryInstance>;
+auto create_context() -> Context;
+auto createScene(Context &context) -> GeometryInstance;
+void setup_lights(Context &context);
+void setup_camera(Context &context);
+
+void glutInitialize(int* argc, char** argv)
+{
+    glutInit(argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitWindowSize(width, height);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Toshi's Reverse Shell");
+    glutHideWindow();
+}
+
+int main(int argc, char **argv)
+{
+    if (argc != 3) {
+        std::cerr << argv[0] << " <input_obj> <output_file>" << std::endl; 
+        return EXIT_FAILURE;
+    }
+    std::string input_obj = argv[1];
+    std::string out_file  = argv[2];
+
+    glutInitialize(&argc, argv);
+    glewInit();
+    auto context = create_context();
+
+    // Create GIs for each piece of geometry
+    auto gis = parse_obj_file(std::move(input_obj), context);
+    gis.push_back(createScene(context));
+
+    // Place all in group
+    GeometryGroup geometrygroup = context->createGeometryGroup();
+    geometrygroup->setChildCount(static_cast<unsigned int>(gis.size()));
+    for (unsigned int i = 0; i < gis.size(); ++i)
+        geometrygroup->setChild(i, gis[i]);
+    geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
+    context["top_object"]->set(geometrygroup);
+    context["top_shadower"]->set(geometrygroup);
+
+    // setup lights, camera
+    setup_lights(context);
+    setup_camera(context);
+
+    context->validate();
+    context->launch(0, width, height);
+    sutil::displayBufferPPM(out_file.c_str(),
+            context["output_buffer"]->getBuffer());
+    context->destroy();
+    return EXIT_SUCCESS;
+}
+
+auto create_triangle(Context &context,
+                     const std::tuple<float, float, float> &x,
+                     const std::tuple<float, float, float> &y,
+                     const std::tuple<float, float, float> &z) -> GeometryInstance
+{
+    // TODO: Optimize. Can we have a mesh geometry with many primitives?
+    std::string triangle_ptx = ptxPath("triangle.cu");
+    Geometry triangle = context->createGeometry();
+    triangle->setPrimitiveCount(1u);
+    triangle->setBoundingBoxProgram(
+            context->createProgramFromPTXFile(triangle_ptx, "bounds"));
+    triangle->setIntersectionProgram(
+            context->createProgramFromPTXFile(triangle_ptx, "robust_intersect"));
+    triangle["x"]->setFloat(std::get<0>(x), std::get<1>(x), std::get<2>(x));
+    triangle["y"]->setFloat(std::get<0>(y), std::get<1>(y), std::get<2>(y));
+    triangle["z"]->setFloat(std::get<0>(z), std::get<1>(z), std::get<2>(z));
+
+    // metal material
+    const std::string metal_ptx = ptxPath( "toon.cu" );
+    Program toon_ch = context->createProgramFromPTXFile(
+            metal_ptx, "closest_hit_radiance");
+    Program toon_ah = context->createProgramFromPTXFile(
+            metal_ptx, "any_hit_shadow");
+    Material metal_matl = context->createMaterial();
+    metal_matl->setClosestHitProgram( 0, toon_ch );
+    metal_matl->setAnyHitProgram( 1, toon_ah );
+    metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
+    metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
+    metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
+    metal_matl["toon_exp"]->setFloat( 64 );
+    metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
+
+    return context->createGeometryInstance(triangle, &metal_matl, &metal_matl+1);
+}
+
+auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstance>
+{
+    // parse the obj file
+    std::ifstream obj(path.c_str());
+    if (!obj)
+        throw std::runtime_error("Could not open file");
+    std::vector<std::tuple<float, float, float>> vertices;
+    std::vector<GeometryInstance> triangles;
+
+    std::string op;
+    while (obj >> op) {
+        if (op == "v") {
+            float x, y, z;
+            obj >> x >> y >> z;
+            vertices.push_back(std::make_tuple(x, y, z));
+        } else if (op == "f") {
+            unsigned int x, y, z;
+            obj >> x >> y >> z;
+            triangles.push_back(create_triangle(c,
+                                                vertices.at(x),
+                                                vertices.at(y),
+                                                vertices.at(z)));
+        }
+    }
+
+    return triangles;
+}
 
 auto ptxPath(const std::string& cuda_file) -> std::string
 {
@@ -34,12 +154,6 @@ auto ptxPath(const std::string& cuda_file) -> std::string
             "/optixWhitted_generated_" +
             cuda_file +
             ".ptx";
-}
-
-auto parse_obj_file(std::string path) -> std::vector<std::tuple<float, float, float>>
-{
-    std::vector<std::tuple<float, float, float>> triangles;
-    return triangles;
 }
 
 auto create_context() -> Context
@@ -185,53 +299,4 @@ void setup_camera(Context &context)
     context["U"  ]->setFloat(camera_u);
     context["V"  ]->setFloat(camera_v);
     context["W"  ]->setFloat(camera_w);
-}
-
-void glutInitialize(int* argc, char** argv)
-{
-    glutInit(argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
-    glutInitWindowSize(width, height);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("Toshi's Reverse Shell");
-    glutHideWindow();
-}
-
-int main(int argc, char **argv)
-{
-    if (argc != 3) {
-        std::cerr << argv[0] << " <input_obj> <output_file>" << std::endl; 
-        return EXIT_FAILURE;
-    }
-    std::string input_obj = argv[1];
-    std::string out_file  = argv[2];
-    auto triangles = parse_obj_file(std::move(input_obj));
-
-    glutInitialize(&argc, argv);
-    glewInit();
-    auto context = create_context();
-
-    // Create GIs for each piece of geometry
-    std::vector<GeometryInstance> gis;
-    gis.push_back(createScene(context));
-
-    // Place all in group
-    GeometryGroup geometrygroup = context->createGeometryGroup();
-    geometrygroup->setChildCount(static_cast<unsigned int>(gis.size()));
-    for (unsigned int i = 0; i < gis.size(); ++i)
-        geometrygroup->setChild(i, gis[i]);
-    geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
-    context["top_object"]->set(geometrygroup);
-    context["top_shadower"]->set(geometrygroup);
-
-    // setup lights, camera
-    setup_lights(context);
-    setup_camera(context);
-
-    context->validate();
-    context->launch(0, width, height);
-    sutil::displayBufferPPM(out_file.c_str(),
-            context["output_buffer"]->getBuffer());
-    context->destroy();
-    return EXIT_SUCCESS;
 }
