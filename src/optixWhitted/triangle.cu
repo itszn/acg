@@ -32,7 +32,6 @@ RT_PROGRAM void robust_intersect(int primIdx)
         if (dot(p,n) + d < 0)
             return;
     }
-
     rtReportIntersection(0);
 }
 

@@ -95,7 +95,9 @@ auto create_triangle(Context &context,
     std::cout << "[+] create_triangle" << std::endl;
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
     std::string triangle_ptx = ptxPath("triangle.cu");
+    std::cout << triangle_ptx << std::endl;
     Geometry triangle = context->createGeometry();
+    std::cout << triangle << std::endl;
     triangle->setPrimitiveCount(1u);
     triangle->setBoundingBoxProgram(
             context->createProgramFromPTXFile(triangle_ptx, "bounds"));
@@ -106,6 +108,7 @@ auto create_triangle(Context &context,
     triangle["z"]->setFloat(std::get<0>(z), std::get<1>(z), std::get<2>(z));
 
     // metal material
+    std::cout << "[+] create_metal" << std::endl;
     const std::string metal_ptx = ptxPath( "toon.cu" );
     Program toon_ch = context->createProgramFromPTXFile(
             metal_ptx, "closest_hit_radiance");
