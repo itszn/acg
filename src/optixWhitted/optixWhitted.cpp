@@ -147,12 +147,11 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
         } else if (op == "f") {
             unsigned int x, y, z;
             obj >> x >> y >> z;
-            std::cerr << vertices.size() << " " << x << " " << y << " " << z << std::endl;
             triangles.push_back(
                     create_triangle(c,
-                        vertices.at(x),
-                        vertices.at(y),
-                        vertices.at(z)));
+                        vertices.at(x-1),
+                        vertices.at(y-1),
+                        vertices.at(z-1)));
         }
     }
     std::cout << "[+] Leaving parse_obj_file" << std::endl;
