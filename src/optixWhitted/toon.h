@@ -72,7 +72,7 @@ static __device__ void toonShadowed()
     rtTerminateRay();
 }
 
-    static
+static
 __device__ float3 discretize(float3 color, float intensity)
 {
     if (intensity > 0.95)
@@ -92,7 +92,7 @@ __device__ void edgeDetect() {
     prd.mode_ret = 1;
 }
 
-    static
+static
 __device__ void toonShade( float3 p_Kd,
         float3 p_Ka, //ambiance
         float3 p_Ks, //
@@ -188,7 +188,6 @@ __device__ void toonShade( float3 p_Kd,
         }
     }
 
-    //rtTrace(
     // pass the color back up the tree
     prd.result = discretize( result, intensity );
 }

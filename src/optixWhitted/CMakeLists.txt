@@ -30,7 +30,7 @@
 if(GLUT_FOUND AND OPENGL_FOUND)
 
     include_directories(${GLUT_INCLUDE_DIR})
-    add_definitions(-DGLUT_FOUND -DGLUT_NO_LIB_PRAGMA)
+    add_definitions(-DGLUT_FOUND -DGLUT_NO_LIB_PRAGMA -std=c++11)
 
     OPTIX_add_sample_executable( optixWhitted 
         optixWhitted.cpp
