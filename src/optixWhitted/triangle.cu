@@ -31,8 +31,10 @@ RT_PROGRAM void robust_intersect(int primIdx)
         if (dot(p,n) + d < 0)
             return;
     }
-    if (rtPotentialIntersection(t))
+    if (rtPotentialIntersection(t)) {
+        geometric_normal = shading_normal = n;
         rtReportIntersection(0);
+    }
 }
 
 
