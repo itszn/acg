@@ -58,10 +58,11 @@ int main(int argc, char **argv)
     std::string input_obj = argv[1];
     std::string out_file  = argv[2];
 
+    Context context;
     try {
         glutInitialize(&argc, argv);
         glewInit();
-        auto context = create_context();
+        context = create_context();
 
         // Create GIs for each piece of geometry
         auto gis = parse_obj_file(std::move(input_obj), context);
