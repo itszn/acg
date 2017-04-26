@@ -58,32 +58,34 @@ int main(int argc, char **argv)
     std::string input_obj = argv[1];
     std::string out_file  = argv[2];
 
-    glutInitialize(&argc, argv);
-    glewInit();
-    auto context = create_context();
+    try {
+        glutInitialize(&argc, argv);
+        glewInit();
+        auto context = create_context();
 
-    // Create GIs for each piece of geometry
-    auto gis = parse_obj_file(std::move(input_obj), context);
-    gis.push_back(create_scene(context));
+        // Create GIs for each piece of geometry
+        auto gis = parse_obj_file(std::move(input_obj), context);
+        gis.push_back(create_scene(context));
 
-    // Place all in group
-    GeometryGroup geometrygroup = context->createGeometryGroup();
-    geometrygroup->setChildCount(static_cast<unsigned int>(gis.size()));
-    for (unsigned int i = 0; i < gis.size(); ++i)
-        geometrygroup->setChild(i, gis[i]);
-    geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
-    context["top_object"]->set(geometrygroup);
-    context["top_shadower"]->set(geometrygroup);
+        // Place all in group
+        GeometryGroup geometrygroup = context->createGeometryGroup();
+        geometrygroup->setChildCount(static_cast<unsigned int>(gis.size()));
+        for (unsigned int i = 0; i < gis.size(); ++i)
+            geometrygroup->setChild(i, gis[i]);
+        geometrygroup->setAcceleration( context->createAcceleration("NoAccel") );
+        context["top_object"]->set(geometrygroup);
+        context["top_shadower"]->set(geometrygroup);
 
-    // setup lights, camera
-    setup_lights(context);
-    setup_camera(context);
+        // setup lights, camera
+        setup_lights(context);
+        setup_camera(context);
 
-    context->validate();
-    context->launch(0, width, height);
-    sutil::displayBufferPPM(out_file.c_str(),
-            context["output_buffer"]->getBuffer());
-    context->destroy();
+        context->validate();
+        context->launch(0, width, height);
+        sutil::displayBufferPPM(out_file.c_str(),
+                context["output_buffer"]->getBuffer());
+        context->destroy();
+    } SUTIL_CATCH( context->get() )
     return EXIT_SUCCESS;
 }
 
