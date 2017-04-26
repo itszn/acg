@@ -143,40 +143,31 @@ __device__ void toonShade( float3 p_Kd,
     }
 
     // START EDGE DETECT
-    //unsigned int seed = tea<16>(screen.x*launch_index.y+launch_index.x, frame);
-    //optix::Ray edge_ray = optix::make_Ray(hit_point-edge_test_dir*0.1f,
-    //        edge_test_dir, distance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-    //rtTrace(top_object, edge_ray, prd_distance);
-    
+    // temporarily not do the shadow stuff
+    if(prd.depth < max_depth) {
+        PerRayData_radiance new_prd;
+        float3 edge_test_dir;
+        optix::Ray edge_ray;
 
-    /* if(prd.depth < max_depth) { */
-    /*     PerRayData_radiance new_prd; */
-    /*     float3 edge_test_dir; */
-    /*     optix::Ray edge_ray; */
+        for(int i = 0; i < 500; ++i) {
+            unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
+            float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
+            float3 from = hit_point-ray.direction*.1f;
+            float3 p2 = hit_point + rand_vec*0.02f; 
 
-    /*     for(int i = 0; i < 1000; ++i) { */
-    /*         unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i); */
-    /*         float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f); */
+            edge_test_dir = optix::normalize(p2-from);
 
-    /*         float3 from = hit_point-ray.direction*.1f; */
-    /*         float3 p2 = hit_point + rand_vec*0.02f; */ 
-
-    /*         edge_test_dir = optix::normalize(p2-from); */
-
-    /*         new_prd.mode = 1; */
-    /*         new_prd.mode_ret = 0; */
-
-    /*         edge_ray = optix::make_Ray(from, */
-    /*                 edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX); */
-
-    /*         rtTrace(top_object, edge_ray, new_prd); */
-    /*         if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.001) { */
-    /*             //result += new_prd.result; */
-    /*             result = make_float3(0.0,0.0,0.0); */
-    /*             break; */
-    /*         } */
-    /*     } */
-    /* } */
+            new_prd.mode = 1;
+            new_prd.mode_ret = 0;
+            edge_ray = optix::make_Ray(from,
+                    edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+            rtTrace(top_object, edge_ray, new_prd);
+            if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.001) {
+                result = make_float3(0.0,0.0,0.0);
+                break;
+            }
+        }
+    }
 
     // pass the color back up the tree
     prd.result = discretize( result, intensity );
