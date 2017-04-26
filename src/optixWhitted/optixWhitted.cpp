@@ -95,25 +95,17 @@ auto create_triangle(Context &context,
                      const std::tuple<float, float, float> &y,
                      const std::tuple<float, float, float> &z) -> GeometryInstance
 {
-    std::cout << "[+] create_triangle" << std::endl;
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
     std::string triangle_ptx = ptxPath("triangle.cu");
     Geometry triangle = context->createGeometry();
-    std::cerr << "HERE1" << std::endl;
     triangle->setPrimitiveCount(1u);
-    std::cerr << "HERE2" << std::endl;
-    std::cerr << context->createProgramFromPTXFile(triangle_ptx, "bounds") << std::endl;
     triangle->setBoundingBoxProgram(
             context->createProgramFromPTXFile(triangle_ptx, "bounds"));
-    std::cerr << "HERE3" << std::endl;
-    std::cerr << context->createProgramFromPTXFile(triangle_ptx, "robust_intersect") << std::endl;
     triangle->setIntersectionProgram(
             context->createProgramFromPTXFile(triangle_ptx, "robust_intersect"));
-    std::cerr << "HERE4" << std::endl;
     triangle["x"]->setFloat(std::get<0>(x), std::get<1>(x), std::get<2>(x));
     triangle["y"]->setFloat(std::get<0>(y), std::get<1>(y), std::get<2>(y));
     triangle["z"]->setFloat(std::get<0>(z), std::get<1>(z), std::get<2>(z));
-    std::cerr << "HERE5" << std::endl;
 
     // metal material
     std::cout << "[+] create_metal" << std::endl;
@@ -155,6 +147,7 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
         } else if (op == "f") {
             unsigned int x, y, z;
             obj >> x >> y >> z;
+            std::cerr << vertices.size() << x << y << z << std::endl;
             triangles.push_back(
                     create_triangle(c,
                         vertices.at(x),
