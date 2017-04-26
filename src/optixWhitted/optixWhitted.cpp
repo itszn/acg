@@ -99,9 +99,11 @@ auto create_triangle(Context &context,
     std::cerr << "HERE1" << std::endl;
     triangle->setPrimitiveCount(1u);
     std::cerr << "HERE2" << std::endl;
+    std::cerr << context->createProgramFromPTXFile(triangle_ptx, "bounds") << std::endl;
     triangle->setBoundingBoxProgram(
             context->createProgramFromPTXFile(triangle_ptx, "bounds"));
     std::cerr << "HERE3" << std::endl;
+    std::cerr << context->createProgramFromPTXFile(triangle_ptx, "robust_intersect") << std::endl;
     triangle->setIntersectionProgram(
             context->createProgramFromPTXFile(triangle_ptx, "robust_intersect"));
     std::cerr << "HERE4" << std::endl;
