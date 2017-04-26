@@ -33,12 +33,13 @@ auto ptxPath(const std::string& cuda_file) -> std::string;
 auto parse_obj_file(std::string path, Context &c)
     -> std::vector<GeometryInstance>;
 auto create_context() -> Context;
-auto createScene(Context &context) -> GeometryInstance;
+auto create_scene(Context &context) -> GeometryInstance;
 void setup_lights(Context &context);
 void setup_camera(Context &context);
 
 void glutInitialize(int* argc, char** argv)
 {
+    std::cout << "[+] glutInitialize" << std::endl;
     glutInit(argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(width, height);
@@ -49,6 +50,7 @@ void glutInitialize(int* argc, char** argv)
 
 int main(int argc, char **argv)
 {
+    std::cout << "[+] main()" << std::endl;
     if (argc != 3) {
         std::cerr << argv[0] << " <input_obj> <output_file>" << std::endl; 
         return EXIT_FAILURE;
@@ -62,7 +64,7 @@ int main(int argc, char **argv)
 
     // Create GIs for each piece of geometry
     auto gis = parse_obj_file(std::move(input_obj), context);
-    gis.push_back(createScene(context));
+    gis.push_back(create_scene(context));
 
     // Place all in group
     GeometryGroup geometrygroup = context->createGeometryGroup();
@@ -122,6 +124,7 @@ auto create_triangle(Context &context,
 
 auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstance>
 {
+    std::cout << "[+] parse_obj_file" << std::endl;
     // parse the obj file
     std::ifstream obj(path.c_str());
     if (!obj)
@@ -158,6 +161,7 @@ auto ptxPath(const std::string& cuda_file) -> std::string
 
 auto create_context() -> Context
 {
+    std::cout << "[+] create_context" << std::endl;
     Context context = Context::create();
     context->setRayTypeCount(2);
     context->setEntryPointCount(1);
@@ -197,9 +201,10 @@ auto create_context() -> Context
     return context;
 }
 
-auto createScene(Context &context) -> GeometryInstance
+auto create_scene(Context &context) -> GeometryInstance
 {
     // setup floor
+    std::cout << "[+] create_scene" << std::endl;
     auto floor_ptx = ptxPath("parallelogram.cu");
     auto parallelogram = context->createGeometry();
     parallelogram->setPrimitiveCount(1u);
