@@ -7,15 +7,15 @@
 #include <vector>
 
 #ifdef __APPLE__
-#  include <GLUT/glut.h>
+# include <GLUT/glut.h>
 #else
-#  include <GL/glew.h>
-#  if defined( _WIN32 )
+# include <GL/glew.h>
+# if defined( _WIN32 )
 #  include <GL/wglew.h>
 #  include <GL/freeglut.h>
-#  else
+# else
 #  include <GL/glut.h>
-#  endif
+# endif
 #endif
 
 #include <optixu/optixpp_namespace.h>
@@ -96,6 +96,7 @@ auto create_triangle(Context &context,
                      const float3 &z) -> GeometryInstance
 {
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
+    // This will allow us to use many more rays for shadow computation
     std::string triangle_ptx = ptxPath("triangle.cu");
     Geometry triangle = context->createGeometry();
     triangle->setPrimitiveCount(1u);
