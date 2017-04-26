@@ -91,9 +91,9 @@ int main(int argc, char **argv)
 }
 
 auto create_triangle(Context &context,
-                     const std::tuple<float, float, float> &x,
-                     const std::tuple<float, float, float> &y,
-                     const std::tuple<float, float, float> &z) -> GeometryInstance
+                     const float3 &x,
+                     const float3 &y,
+                     const float3 &z) -> GeometryInstance
 {
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
     std::string triangle_ptx = ptxPath("triangle.cu");
@@ -103,12 +103,11 @@ auto create_triangle(Context &context,
             context->createProgramFromPTXFile(triangle_ptx, "bounds"));
     triangle->setIntersectionProgram(
             context->createProgramFromPTXFile(triangle_ptx, "robust_intersect"));
-    triangle["x"]->setFloat(std::get<0>(x), std::get<1>(x), std::get<2>(x));
-    triangle["y"]->setFloat(std::get<0>(y), std::get<1>(y), std::get<2>(y));
-    triangle["z"]->setFloat(std::get<0>(z), std::get<1>(z), std::get<2>(z));
+    triangle["x"]->setFloat(x);
+    triangle["y"]->setFloat(y);
+    triangle["z"]->setFloat(z);
 
     // metal material
-    std::cout << "[+] create_metal" << std::endl;
     const std::string metal_ptx = ptxPath( "toon.cu" );
     Program toon_ch = context->createProgramFromPTXFile(
             metal_ptx, "closest_hit_radiance");
@@ -135,26 +134,23 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
         std::cout << "[-] could not find file " << path << std::endl;
         throw std::runtime_error("Could not open file");
     }
-    std::vector<std::tuple<float, float, float>> vertices;
-    std::vector<GeometryInstance> triangles;
+    auto triangles = std::vector<GeometryInstance>();
+    auto vertices  = std::vector<float3>();
 
     std::string op;
     while (obj >> op) {
         if (op == "v") {
             float x, y, z;
             obj >> x >> y >> z;
-            vertices.push_back(std::make_tuple(x, y, z));
+            vertices.push_back(make_float3(x, y, z));
         } else if (op == "f") {
             unsigned int x, y, z;
             obj >> x >> y >> z;
-            triangles.push_back(
-                    create_triangle(c,
-                        vertices.at(x-1),
-                        vertices.at(y-1),
-                        vertices.at(z-1)));
+            triangles.push_back(create_triangle(c, vertices[x-1],
+                                                   vertices[y-1],
+                                                   vertices[z-1]));
         }
     }
-    std::cout << "[+] Leaving parse_obj_file" << std::endl;
     return triangles;
 }
 
