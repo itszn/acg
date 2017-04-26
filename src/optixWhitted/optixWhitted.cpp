@@ -128,7 +128,7 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
     // parse the obj file
     std::ifstream obj(path.c_str());
     if (!obj) {
-        std::cerr << "[-] could not find file " << path << std::endl;
+        std::cout << "[-] could not find file " << path << std::endl;
         throw std::runtime_error("Could not open file");
     }
     std::vector<std::tuple<float, float, float>> vertices;
@@ -143,13 +143,14 @@ auto parse_obj_file(std::string path, Context &c) -> std::vector<GeometryInstanc
         } else if (op == "f") {
             unsigned int x, y, z;
             obj >> x >> y >> z;
-            triangles.push_back(create_triangle(c,
-                                                vertices.at(x),
-                                                vertices.at(y),
-                                                vertices.at(z)));
+            triangles.push_back(
+                    create_triangle(c,
+                        vertices.at(x),
+                        vertices.at(y),
+                        vertices.at(z)));
         }
     }
-
+    std::cout << "[+] Leaving parse_obj_file" << std::endl;
     return triangles;
 }
 
