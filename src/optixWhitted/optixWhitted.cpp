@@ -96,7 +96,7 @@ auto create_triangle(Context &context,
                      const float3 &z) -> GeometryInstance
 {
     Matrix4x4 trans;
-    trans.setRow(0, make_float4(10.0, 0.0, 0.0, 1.0));
+    trans.setRow(0, make_float4(10.0, 0.0, 0.0, 3.0));
     trans.setRow(1, make_float4( 0.0,10.0, 0.0, 0.0));
     trans.setRow(2, make_float4( 0.0, 0.0,10.0, 0.0));
     trans.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
