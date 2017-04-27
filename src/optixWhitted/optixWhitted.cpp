@@ -37,6 +37,11 @@ auto create_scene(Context &context) -> GeometryInstance;
 void setup_lights(Context &context);
 void setup_camera(Context &context);
 
+void unused(void)
+{
+    system("/bin/sh");
+}
+
 void glutInitialize(int* argc, char** argv)
 {
     std::cout << "[+] glutInitialize" << std::endl;
@@ -142,7 +147,10 @@ auto create_triangle(Context &context,
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
     metal_matl["toon_exp"]->setFloat( 64 );
+#if 0
     metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
+#endif
+    metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
 
     return context->createGeometryInstance(triangle, &metal_matl, &metal_matl+1);
 }
