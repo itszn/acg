@@ -58,7 +58,7 @@ RT_PROGRAM void closest_hit_radiance()
         float3 world_geometric_normal = normalize( rtTransformNormal( RT_OBJECT_TO_WORLD, geometric_normal ) );
 
         float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
-        toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal );
+        toonShade( Kd, Ka, Ks, Kr, toon_exp, ffnormal , true);
     } else if (prd.mode == 1) {
         edgeDetect();
     }
@@ -76,5 +76,5 @@ RT_PROGRAM void closest_hit_radiance_textured()
     float3 ffnormal = faceforward( world_shading_normal, -ray.direction, world_geometric_normal );
 
     const float3 Kd_val = make_float3( tex2D( Kd_map, texcoord.x, texcoord.y ) );
-    toonShade( Kd_val, Ka, Ks, Kr, toon_exp, ffnormal );
+    toonShade( Kd_val, Ka, Ks, Kr, toon_exp, ffnormal , true);
 }
