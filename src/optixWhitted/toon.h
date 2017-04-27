@@ -98,7 +98,7 @@ __device__ void toonShade( float3 p_Kd,
         float3 p_Ks, //
         float3 p_Kr, //reflectance
         float  p_toon_exp, 
-        float3 p_normal )
+        float3 p_normal, bool doEdge )
 {
     float3 hit_point = ray.origin + t_hit * ray.direction;
     // ambient contribution
@@ -144,7 +144,7 @@ __device__ void toonShade( float3 p_Kd,
 
     // START EDGE DETECT
     // temporarily not do the shadow stuff
-    if(prd.depth < max_depth) {
+    if(doEdge) {
         PerRayData_radiance new_prd;
         float3 edge_test_dir;
         optix::Ray edge_ray;
@@ -162,7 +162,7 @@ __device__ void toonShade( float3 p_Kd,
         u = optix::normalize(u);
         float3 v = optix::normalize(optix::cross(norm, u));
 
-        float width = 0.0004f;
+        float width = 0.02f;
         float widthI = width/5.0f;
 
         float data[10][10];
