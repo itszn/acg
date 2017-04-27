@@ -110,9 +110,9 @@ auto create_triangle(Context &context,
             context->createProgramFromPTXFile(triangle_ptx, "bounds"));
     triangle->setIntersectionProgram(
             context->createProgramFromPTXFile(triangle_ptx, "robust_intersect"));
-    triangle["x"]->setFloat(x*trans);
-    triangle["y"]->setFloat(y*trans);
-    triangle["z"]->setFloat(z*trans);
+    triangle["x"]->setFloat(make_float3(make_float4(x)*trans));
+    triangle["y"]->setFloat(make_float3(make_float4(y)*trans));
+    triangle["z"]->setFloat(make_float3(make_float4(z)*trans));
 
     // metal material
     const std::string metal_ptx = ptxPath( "toon.cu" );
