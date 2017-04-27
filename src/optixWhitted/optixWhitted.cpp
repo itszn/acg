@@ -111,8 +111,8 @@ auto create_triangle(Context &context,
     Matrix4x4 rotm;
     rotm.setRow(0, make_float4(cos(rot), -sin(rot), 0, 0));
     rotm.setRow(1, make_float4(sin(rot), -cos(rot), 0, 0));
-    rotm.setRow(1, make_float4(0, 0, 1, 0));
-    rotm.setRow(1, make_float4(0, 0, 0, 1));
+    rotm.setRow(2, make_float4(0, 0, 1, 0));
+    rotm.setRow(3, make_float4(0, 0, 0, 1));
 
 
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
