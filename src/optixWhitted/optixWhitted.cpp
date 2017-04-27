@@ -277,7 +277,7 @@ void setup_camera(Context &context)
     const float aspect_ratio = static_cast<float>(width) /
         static_cast<float>(height);
 
-    float3 camera_eye         = make_float3(8.0f, 1.0f, -4.0f);
+    float3 camera_eye         = make_float3(8.0f, 0.0f, -4.0f);
     float3 camera_lookat      = make_float3(4.0f, 2.3f, -4.0f);
     float3 camera_up          = make_float3(0.0f, 1.0f,  0.0f);
     Matrix4x4 camera_rotate   = Matrix4x4::identity();
