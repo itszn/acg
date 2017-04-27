@@ -126,6 +126,12 @@ __device__ void toonShade( float3 p_Kd,
             float3 Lc = light.color * light_attenuation;
             result += p_Kd * nDl * Lc;
             intensity += nDl/num_lights;
+            float3 H = optix::normalize(L - ray.direction);
+            float nDh = optix::dot( p_normal, H );
+            if(nDh > 0) {
+                float power = pow(nDh, p_phong_exp);
+                result += p_Ks * power * Lc;
+            }
         }
     }
     if( fmaxf( p_Kr ) > 0 ) {
@@ -226,5 +232,6 @@ __device__ void toonShade( float3 p_Kd,
 
     }
     // pass the color back up the tree
-    prd.result = discretize( result, intensity );
+    prd.result = result;
+    /* prd.result = discretize( result, intensity ); */
 }
