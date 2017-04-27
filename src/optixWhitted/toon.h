@@ -213,7 +213,7 @@ __device__ void toonShade( float3 p_Kd,
                         float mm = m - slopes[i-1][j-1];
                         float mm2 = m - slopes[i-1][j];
                         float mm3 = m - slopes[i][j-1];
-                        if (abs(mm) > 0.1 || abs(mm2) > 0.1 || abs(mm3) > 0.1) {
+                        if (abs(mm) > 0.01 || abs(mm2) > 0.01 || abs(mm3) > 0.01) {
                             result = make_float3(0.0,0.0,0.0);
                             done = true;
                             break;
