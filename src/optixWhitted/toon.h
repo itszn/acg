@@ -172,9 +172,11 @@ __device__ void toonShade( float3 p_Kd,
             for (int j = 0; j < 10; j++) {
                 //unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
                 //float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
-                float3 from = hit_point-ray.direction*.1f;
                 //float3 p2 = hit_point + rand_vec*0.02f; 
-                float3 p2 = hit_point + u * (-width+float(i)*widthI) + v * (-width+float(j)*widthI);
+                
+                float3 off = u * (-width+float(i)*widthI) + v * (-width+float(j)*widthI); 
+                float3 from = (hit_point-ray.direction*.1f)+off;
+                float3 p2 = hit_point + off;
 
                 edge_test_dir = optix::normalize(p2-from);
 
