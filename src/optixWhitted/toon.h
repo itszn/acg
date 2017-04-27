@@ -162,7 +162,7 @@ __device__ void toonShade( float3 p_Kd,
         u = optix::normalize(u);
         float3 v = optix::normalize(optix::cross(norm, u));
 
-        float width = 0.02f;
+        float width = 0.0002f;
         float widthI = width/5.0f;
 
         float data[10][10];
@@ -176,7 +176,7 @@ __device__ void toonShade( float3 p_Kd,
                 //float3 p2 = hit_point + rand_vec*0.02f; 
                 
                 float3 off = u * (-width+float(i)*widthI) + v * (-width+float(j)*widthI); 
-                float3 from = (hit_point-ray.direction*.1f)+off;
+                float3 from = (hit_point-ray.direction*.0001f)+off;
                 float3 p2 = hit_point + off;
 
                 edge_test_dir = optix::normalize(p2-from);
@@ -210,6 +210,12 @@ __device__ void toonShade( float3 p_Kd,
                     }
                     if (i > 1 && j > 1) {
                         float mm = m - slopes[i-1][j-1];
+                        float mm = m - slopes[i-1][j-1];
+                        if (abs(mm) > 1.0) {
+                            result = make_float3(0.0,0.0,0.0);
+                            done = true;
+                            break;
+                        }
                         if (abs(mm) > 1.0) {
                             result = make_float3(0.0,0.0,0.0);
                             done = true;
