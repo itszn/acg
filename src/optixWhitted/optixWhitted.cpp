@@ -102,8 +102,8 @@ auto create_triangle(Context &context,
     scale.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
 
     Matrix4x4 trans;
-    trans.setRow(0, make_float4( 1.0, 0.0, 0.0, 0.0));
-    trans.setRow(1, make_float4( 0.0, 1.0, 0.0, 1.0));
+    trans.setRow(0, make_float4( 1.0, 0.0, 0.0, 2.0));
+    trans.setRow(1, make_float4( 0.0, 1.0, 0.0, 0.0));
     trans.setRow(2, make_float4( 0.0, 0.0, 1.0, 0.0));
     trans.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
 
