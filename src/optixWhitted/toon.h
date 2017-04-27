@@ -92,146 +92,213 @@ __device__ void edgeDetect() {
     prd.mode_ret = 1;
 }
 
+/* static */
+/* __device__ void toonShade( float3 p_Kd, */
+/*         float3 p_Ka, //ambiance */
+/*         float3 p_Ks, // */
+/*         float3 p_Kr, //reflectance */
+/*         float  p_toon_exp, */ 
+/*         float3 p_normal, bool doEdge ) */
+/* { */
+/*     float3 hit_point = ray.origin + t_hit * ray.direction; */
+/*     // ambient contribution */
+/*     float3 result = p_Ka * ambient_light_color; */
+
+/*     float intensity = 0.0; */
+/*     // compute direct lighting */
+/*     unsigned int num_lights = lights.size(); */
+/*     for(int i = 0; i < num_lights; ++i) { */
+/*         BasicLight light = lights[i]; */
+/*         float Ldist = optix::length(light.pos - hit_point); */
+/*         float3 L = optix::normalize(light.pos - hit_point); */
+/*         float nDl = optix::dot( p_normal, L); */
+/*         // cast shadow ray */
+/*         float3 light_attenuation = make_float3(static_cast<float>( nDl > 0.0f )); */
+/*         if ( nDl > 0.0f && light.casts_shadow ) { */
+/*             PerRayData_shadow shadow_prd; */
+/*             shadow_prd.attenuation = make_float3(1.0f); */
+/*             optix::Ray shadow_ray = optix::make_Ray( hit_point, L, shadow_ray_type, scene_epsilon, Ldist ); */
+/*             rtTrace(top_shadower, shadow_ray, shadow_prd); */
+/*             light_attenuation = shadow_prd.attenuation; */
+/*         } */
+/*         // If not completely shadowed, light the hit point */
+/*         if( fmaxf(light_attenuation) > 0.0f ) { */
+/*             float3 Lc = light.color * light_attenuation; */
+/*             result += p_Kd * nDl * Lc; */
+/*             intensity += nDl/num_lights; */
+/*             float3 H = optix::normalize(L - ray.direction); */
+/*             float nDh = optix::dot( p_normal, H ); */
+/*             if(nDh > 0) { */
+/*                 float power = pow(nDh, p_toon_exp); */
+/*                 result += p_Ks * power * Lc; */
+/*             } */
+/*         } */
+/*     } */
+/*     if( fmaxf( p_Kr ) > 0 ) { */
+/*         // ray tree attenuation */
+/*         PerRayData_radiance new_prd; */             
+/*         new_prd.importance = prd.importance * optix::luminance( p_Kr ); */
+/*         new_prd.depth = prd.depth + 1; */
+/*         // reflection ray */
+/*         if( new_prd.importance >= 0.001f && new_prd.depth <= max_depth) { */
+/*             float3 R = optix::reflect( ray.direction, p_normal ); */
+/*             optix::Ray refl_ray = optix::make_Ray( hit_point, R, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX ); */
+/*             rtTrace(top_object, refl_ray, new_prd); */
+/*             result += p_Kr * new_prd.result; */
+/*         } */
+/*     } */
+
+/*     // START EDGE DETECT */
+/*     // temporarily not do the shadow stuff */
+/*     if(doEdge) { */
+/*         PerRayData_radiance new_prd; */
+/*         float3 edge_test_dir; */
+/*         optix::Ray edge_ray; */
+
+/*         float3 norm = ray.direction; */
+
+/*         float3 u; */
+/*         if (norm.x < norm.y && norm.x < norm.z) */
+/*             u = make_float3(0, -norm.z, norm.y); */
+/*         else if (norm.y < norm.x && norm.y < norm.z) */
+/*             u = make_float3(-norm.z, 0, norm.x); */
+/*         else */
+/*             u = make_float3(-norm.y, norm.x, 0); */
+
+/*         u = optix::normalize(u); */
+/*         float3 v = optix::normalize(optix::cross(norm, u)); */
+
+/*         //float width = 0.02f; */
+/*         float width = 0.04f; */
+/*         float widthI = width/5.0f; */
+
+/*         float data[10][10]; */
+/*         float slopes[10][10]; */
+
+/*         bool done = false; */
+/*         for(int i = 0; i < 10 && !done; ++i) { */
+/*             for (int j = 0; j < 10; j++) { */
+/*                 //unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i); */
+/*                 //float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f); */
+/*                 //float3 p2 = hit_point + rand_vec*0.02f; */ 
+                
+/*                 float3 off = u * (-width+float(i)*widthI) + v * (-width+float(j)*widthI); */ 
+/*                 float3 from = (hit_point-ray.direction*.1f)+off; */
+/*                 float3 p2 = hit_point + off; */
+
+/*                 edge_test_dir = optix::normalize(p2-from); */
+
+/*                 new_prd.mode = 1; */
+/*                 new_prd.mode_ret = 0; */
+/*                 edge_ray = optix::make_Ray(from, */
+/*                         edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX); */
+/*                 rtTrace(top_object, edge_ray, new_prd); */
+
+/*                 float depth = new_prd.result.x; */
+/*                 data[i][j] = depth; */
+/*                 if (new_prd.mode_ret != 1) { */
+/*                     result = make_float3(0.0,0.0,0.0); */
+/*                     done = true; */
+/*                     break; */
+/*                 } */
+
+/*                 if (i > 0 && j > 0) { */
+/*                     // Calculate the slope */
+/*                     float m = depth - data[i-1][j-1]; */
+/*                     m += depth - data[i-1][j]; */
+/*                     m += depth - data[i][j-1]; */
+/*                     m /= 3.0f; */
+/*                     slopes[i][j] = m; */
+/*                     /* */
+/*                     if (abs(m) > 1000.0) { */
+/*                         result = make_float3(0.0,0.0,0.0); */
+/*                         done = true; */
+/*                         break; */
+/*                     } */
+/*                     *1/ */
+/*                     if (i > 1 && j > 1) { */
+/*                         float mm = m - slopes[i-1][j-1]; */
+/*                         float mm2 = m - slopes[i-1][j]; */
+/*                         float mm3 = m - slopes[i][j-1]; */
+/*                         if (abs(mm) > 0.1 || abs(mm2) > 0.1 || abs(mm3) > 0.1) { */
+/*                             result = make_float3(0.0,0.0,0.0); */
+/*                             done = true; */
+/*                             break; */
+/*                         } */
+/*                     } */
+/*                 } */
+/*             } */
+/*         } */
+
+/*     } */
+/*     // pass the color back up the tree */
+/*     prd.result = result; */
+/*     /1* prd.result = discretize( result, intensity ); *1/ */
+/* } */
+
 static
 __device__ void toonShade( float3 p_Kd,
-        float3 p_Ka, //ambiance
-        float3 p_Ks, //
-        float3 p_Kr, //reflectance
-        float  p_toon_exp, 
-        float3 p_normal, bool doEdge )
+                            float3 p_Ka,
+                            float3 p_Ks,
+                            float3 p_Kr,
+                            float  p_toon_exp, 
+                            float3 p_normal )
 {
-    float3 hit_point = ray.origin + t_hit * ray.direction;
-    // ambient contribution
-    float3 result = p_Ka * ambient_light_color;
+  float3 hit_point = ray.origin + t_hit * ray.direction;
+  
+  // ambient contribution
 
-    float intensity = 0.0;
-    // compute direct lighting
-    unsigned int num_lights = lights.size();
-    for(int i = 0; i < num_lights; ++i) {
-        BasicLight light = lights[i];
-        float Ldist = optix::length(light.pos - hit_point);
-        float3 L = optix::normalize(light.pos - hit_point);
-        float nDl = optix::dot( p_normal, L);
-        // cast shadow ray
-        float3 light_attenuation = make_float3(static_cast<float>( nDl > 0.0f ));
-        if ( nDl > 0.0f && light.casts_shadow ) {
-            PerRayData_shadow shadow_prd;
-            shadow_prd.attenuation = make_float3(1.0f);
-            optix::Ray shadow_ray = optix::make_Ray( hit_point, L, shadow_ray_type, scene_epsilon, Ldist );
-            rtTrace(top_shadower, shadow_ray, shadow_prd);
-            light_attenuation = shadow_prd.attenuation;
-        }
-        // If not completely shadowed, light the hit point
-        if( fmaxf(light_attenuation) > 0.0f ) {
-            float3 Lc = light.color * light_attenuation;
-            result += p_Kd * nDl * Lc;
-            intensity += nDl/num_lights;
-            float3 H = optix::normalize(L - ray.direction);
-            float nDh = optix::dot( p_normal, H );
-            if(nDh > 0) {
-                float power = pow(nDh, p_toon_exp);
-                result += p_Ks * power * Lc;
-            }
-        }
-    }
-    if( fmaxf( p_Kr ) > 0 ) {
-        // ray tree attenuation
-        PerRayData_radiance new_prd;             
-        new_prd.importance = prd.importance * optix::luminance( p_Kr );
-        new_prd.depth = prd.depth + 1;
-        // reflection ray
-        if( new_prd.importance >= 0.001f && new_prd.depth <= max_depth) {
-            float3 R = optix::reflect( ray.direction, p_normal );
-            optix::Ray refl_ray = optix::make_Ray( hit_point, R, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX );
-            rtTrace(top_object, refl_ray, new_prd);
-            result += p_Kr * new_prd.result;
-        }
+  float3 result = p_Ka * ambient_light_color;
+
+  // compute direct lighting
+  unsigned int num_lights = lights.size();
+  for(int i = 0; i < num_lights; ++i) {
+    BasicLight light = lights[i];
+    float Ldist = optix::length(light.pos - hit_point);
+    float3 L = optix::normalize(light.pos - hit_point);
+    float nDl = optix::dot( p_normal, L);
+
+    // cast shadow ray
+    float3 light_attenuation = make_float3(static_cast<float>( nDl > 0.0f ));
+    if ( nDl > 0.0f && light.casts_shadow ) {
+      PerRayData_shadow shadow_prd;
+      shadow_prd.attenuation = make_float3(1.0f);
+      optix::Ray shadow_ray = optix::make_Ray( hit_point, L, shadow_ray_type, scene_epsilon, Ldist );
+      rtTrace(top_shadower, shadow_ray, shadow_prd);
+      light_attenuation = shadow_prd.attenuation;
     }
 
-    // START EDGE DETECT
-    // temporarily not do the shadow stuff
-    if(doEdge) {
-        PerRayData_radiance new_prd;
-        float3 edge_test_dir;
-        optix::Ray edge_ray;
+    // If not completely shadowed, light the hit point
+    if( fmaxf(light_attenuation) > 0.0f ) {
+      float3 Lc = light.color * light_attenuation;
 
-        float3 norm = ray.direction;
+      result += p_Kd * nDl * Lc;
 
-        float3 u;
-        if (norm.x < norm.y && norm.x < norm.z)
-            u = make_float3(0, -norm.z, norm.y);
-        else if (norm.y < norm.x && norm.y < norm.z)
-            u = make_float3(-norm.z, 0, norm.x);
-        else
-            u = make_float3(-norm.y, norm.x, 0);
-
-        u = optix::normalize(u);
-        float3 v = optix::normalize(optix::cross(norm, u));
-
-        //float width = 0.02f;
-        float width = 0.04f;
-        float widthI = width/5.0f;
-
-        float data[10][10];
-        float slopes[10][10];
-
-        bool done = false;
-        for(int i = 0; i < 10 && !done; ++i) {
-            for (int j = 0; j < 10; j++) {
-                //unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
-                //float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
-                //float3 p2 = hit_point + rand_vec*0.02f; 
-                
-                float3 off = u * (-width+float(i)*widthI) + v * (-width+float(j)*widthI); 
-                float3 from = (hit_point-ray.direction*.1f)+off;
-                float3 p2 = hit_point + off;
-
-                edge_test_dir = optix::normalize(p2-from);
-
-                new_prd.mode = 1;
-                new_prd.mode_ret = 0;
-                edge_ray = optix::make_Ray(from,
-                        edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-                rtTrace(top_object, edge_ray, new_prd);
-
-                float depth = new_prd.result.x;
-                data[i][j] = depth;
-                if (new_prd.mode_ret != 1) {
-                    result = make_float3(0.0,0.0,0.0);
-                    done = true;
-                    break;
-                }
-
-                if (i > 0 && j > 0) {
-                    // Calculate the slope
-                    float m = depth - data[i-1][j-1];
-                    m += depth - data[i-1][j];
-                    m += depth - data[i][j-1];
-                    m /= 3.0f;
-                    slopes[i][j] = m;
-                    /*
-                    if (abs(m) > 1000.0) {
-                        result = make_float3(0.0,0.0,0.0);
-                        done = true;
-                        break;
-                    }
-                    */
-                    if (i > 1 && j > 1) {
-                        float mm = m - slopes[i-1][j-1];
-                        float mm2 = m - slopes[i-1][j];
-                        float mm3 = m - slopes[i][j-1];
-                        if (abs(mm) > 0.1 || abs(mm2) > 0.1 || abs(mm3) > 0.1) {
-                            result = make_float3(0.0,0.0,0.0);
-                            done = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
+      float3 H = optix::normalize(L - ray.direction);
+      float nDh = optix::dot( p_normal, H );
+      if(nDh > 0) {
+        float power = pow(nDh, p_toon_exp);
+        result += p_Ks * power * Lc;
+      }
     }
-    // pass the color back up the tree
-    prd.result = result;
-    /* prd.result = discretize( result, intensity ); */
+  }
+
+  if( fmaxf( p_Kr ) > 0 ) {
+
+    // ray tree attenuation
+    PerRayData_radiance new_prd;             
+    new_prd.importance = prd.importance * optix::luminance( p_Kr );
+    new_prd.depth = prd.depth + 1;
+
+    // reflection ray
+    if( new_prd.importance >= 0.01f && new_prd.depth <= max_depth) {
+      float3 R = optix::reflect( ray.direction, p_normal );
+      optix::Ray refl_ray = optix::make_Ray( hit_point, R, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX );
+      rtTrace(top_object, refl_ray, new_prd);
+      result += p_Kr * new_prd.result;
+    }
+  }
+  
+  // pass the color back up the tree
+  prd.result = result;
 }
