@@ -129,7 +129,7 @@ __device__ void toonShade( float3 p_Kd,
             float3 H = optix::normalize(L - ray.direction);
             float nDh = optix::dot( p_normal, H );
             if(nDh > 0) {
-                float power = pow(nDh, p_phong_exp);
+                float power = pow(nDh, p_toon_exp);
                 result += p_Ks * power * Lc;
             }
         }
