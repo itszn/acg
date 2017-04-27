@@ -242,7 +242,8 @@ __device__ void toonShade( float3 p_Kd,
                             float3 p_Ks,
                             float3 p_Kr,
                             float  p_toon_exp, 
-                            float3 p_normal )
+                            float3 p_normal,
+                            bool doEdge)
 {
   float3 hit_point = ray.origin + t_hit * ray.direction;
   
