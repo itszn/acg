@@ -95,11 +95,17 @@ auto create_triangle(Context &context,
                      const float3 &y,
                      const float3 &z) -> GeometryInstance
 {
+    Matrix4x4 scale;
+    scale.setRow(0, make_float4(10.0, 0.0, 0.0, 0.0));
+    scale.setRow(1, make_float4( 0.0,10.0, 0.0, 0.0));
+    scale.setRow(2, make_float4( 0.0, 0.0,10.0, 0.0));
+    scale.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
+
     Matrix4x4 trans;
-    trans.setRow(0, make_float4(10.0, 0.0, 0.0, 0.0));
-    trans.setRow(1, make_float4( 0.0,10.0, 0.0, 0.0));
-    trans.setRow(2, make_float4( 0.0, 0.0,10.0, 0.0));
-    trans.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
+    scale.setRow(0, make_float4( 0.0, 0.0, 0.0, 0.0));
+    scale.setRow(1, make_float4( 0.0, 0.0, 0.0,-0.5));
+    scale.setRow(2, make_float4( 0.0, 0.0, 0.0,-2.0));
+    scale.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
 
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
     // This will allow us to use many more rays for shadow computation
@@ -110,9 +116,9 @@ auto create_triangle(Context &context,
             context->createProgramFromPTXFile(triangle_ptx, "bounds"));
     triangle->setIntersectionProgram(
             context->createProgramFromPTXFile(triangle_ptx, "robust_intersect"));
-    triangle["x"]->setFloat(make_float3(trans*make_float4(x)) + make_float3(0.0,-0.5,-2.0));
-    triangle["y"]->setFloat(make_float3(trans*make_float4(y)) + make_float3(0.0,-0.5,-2.0));
-    triangle["z"]->setFloat(make_float3(trans*make_float4(z)) + make_float3(0.0,-0.5,-2.0));
+    triangle["x"]->setFloat(make_float3(scale*trans*make_float4(x)));
+    triangle["y"]->setFloat(make_float3(scale*trans*make_float4(y)));
+    triangle["z"]->setFloat(make_float3(scale*trans*make_float4(z)));
 
     // metal material
     const std::string metal_ptx = ptxPath( "toon.cu" );
