@@ -95,7 +95,11 @@ auto create_triangle(Context &context,
                      const float3 &y,
                      const float3 &z) -> GeometryInstance
 {
-    Matrix3x3 trans = Matrix3x3::identity() * 10.0f;
+    Matrix4x4 trans;
+    trans.setRow(0, make_float4(10.0, 0.0, 0.0, 1.0));
+    trans.setRow(1, make_float4( 0.0,10.0, 0.0, 0.0));
+    trans.setRow(2, make_float4( 0.0, 0.0,10.0, 0.0));
+    trans.setRow(3, make_float4( 0.0, 0.0, 0.0, 1.0));
 
     // TODO: Optimize. Can we have a mesh geometry with many primitives?
     // This will allow us to use many more rays for shadow computation
