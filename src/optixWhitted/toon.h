@@ -149,22 +149,41 @@ __device__ void toonShade( float3 p_Kd,
         float3 edge_test_dir;
         optix::Ray edge_ray;
 
-        for(int i = 0; i < 100; ++i) {
-            unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
-            float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
-            float3 from = hit_point-ray.direction*.1f;
-            float3 p2 = hit_point + rand_vec*0.02f; 
+        float3 norm = ray.direction;
 
-            edge_test_dir = optix::normalize(p2-from);
+        float3 u;
+        if (norm.x < norm.y && norm.x < norm.z)
+            u = make_float3(0, -norm.z, norm.y);
+        else if (norm.y < norm.x && norm.y < norm.z)
+            u = make_float3(-norm.z, 0, norm.x);
+        else
+            u = make_float3(-norm.y, norm.x, 0);
 
-            new_prd.mode = 1;
-            new_prd.mode_ret = 0;
-            edge_ray = optix::make_Ray(from,
-                    edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-            rtTrace(top_object, edge_ray, new_prd);
-            if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.00001) {
-                result = make_float3(0.0,0.0,0.0);
-                break;
+        u = optix::normalize(u);
+        float3 v = optix::normalize(optix::cross(norm, u));
+
+        float width = 0.02f;
+        float widthI = width/5.0f;
+
+        for(int i = 0; i < 10; ++i) {
+            for (int j = 0; j < 10; j++) {
+                //unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
+                //float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
+                float3 from = hit_point-ray.direction*.1f;
+                //float3 p2 = hit_point + rand_vec*0.02f; 
+                float3 p2 = hit_point + u * (-width+float(i)*widthI) + v * (-width+float(j)*widthI);
+
+                edge_test_dir = optix::normalize(p2-from);
+
+                new_prd.mode = 1;
+                new_prd.mode_ret = 0;
+                edge_ray = optix::make_Ray(from,
+                        edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+                rtTrace(top_object, edge_ray, new_prd);
+                if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.00001) {
+                    result = make_float3(0.0,0.0,0.0);
+                    break;
+                }
             }
         }
     }
