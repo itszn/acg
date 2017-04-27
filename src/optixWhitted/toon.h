@@ -165,7 +165,10 @@ __device__ void toonShade( float3 p_Kd,
         float width = 0.02f;
         float widthI = width/5.0f;
 
-        for(int i = 0; i < 10; ++i) {
+        float data[10][10];
+
+        bool done = false;
+        for(int i = 0; i < 10 && !done; ++i) {
             for (int j = 0; j < 10; j++) {
                 //unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
                 //float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
@@ -180,12 +183,30 @@ __device__ void toonShade( float3 p_Kd,
                 edge_ray = optix::make_Ray(from,
                         edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
                 rtTrace(top_object, edge_ray, new_prd);
-                if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.00001) {
+
+                float depth = new_prd.result.x;
+                data[i][j] = depth;
+                if (new_prd.mode_ret != 1) {
                     result = make_float3(0.0,0.0,0.0);
+                    done = true;
                     break;
+                }
+
+                if (i > 0 && j > 0) {
+                    // Calculate the slope
+                    float m = depth - data[i-1][j-1];
+                    m += depth - data[i-1][j];
+                    m += depth - data[i][j-1];
+                    m /= 3.0f;
+                    if (abs(m) > .01) {
+                        result = make_float3(0.0,0.0,0.0);
+                        done = true;
+                        break;
+                    }
                 }
             }
         }
+
     }
     // pass the color back up the tree
     prd.result = discretize( result, intensity );
