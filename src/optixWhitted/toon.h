@@ -166,6 +166,7 @@ __device__ void toonShade( float3 p_Kd,
         float widthI = width/5.0f;
 
         float data[10][10];
+        float slopes[10][10];
 
         bool done = false;
         for(int i = 0; i < 10 && !done; ++i) {
@@ -200,11 +201,22 @@ __device__ void toonShade( float3 p_Kd,
                     m += depth - data[i-1][j];
                     m += depth - data[i][j-1];
                     m /= 3.0f;
+                    slopes[i][j] = m;
+                    /*
                     if (abs(m) > 1000.0) {
                         result = make_float3(0.0,0.0,0.0);
                         done = true;
                         break;
                     }
+                    if (i > 1 && j > 1) {
+                        float mm = m - slopes[i-1][j-1];
+                        if (abs(mm) > 1.0) {
+                            result = make_float3(0.0,0.0,0.0);
+                            done = true;
+                            break;
+                        }
+                    }
+                    */
                 }
             }
         }
