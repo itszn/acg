@@ -200,7 +200,7 @@ __device__ void toonShade( float3 p_Kd,
                     m += depth - data[i-1][j];
                     m += depth - data[i][j-1];
                     m /= 3.0f;
-                    if (abs(m) > 10.0) {
+                    if (abs(m) > 1000.0) {
                         result = make_float3(0.0,0.0,0.0);
                         done = true;
                         break;
