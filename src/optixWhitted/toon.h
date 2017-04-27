@@ -162,7 +162,7 @@ __device__ void toonShade( float3 p_Kd,
             edge_ray = optix::make_Ray(from,
                     edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
             rtTrace(top_object, edge_ray, new_prd);
-            if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.0001) {
+            if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.00001) {
                 result = make_float3(0.0,0.0,0.0);
                 break;
             }
