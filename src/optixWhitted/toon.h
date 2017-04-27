@@ -149,7 +149,7 @@ __device__ void toonShade( float3 p_Kd,
         float3 edge_test_dir;
         optix::Ray edge_ray;
 
-        for(int i = 0; i < 10; ++i) {
+        for(int i = 0; i < 100; ++i) {
             unsigned int seed = tea<16>(hit_point.x+hit_point.y+hit_point.z,i);
             float3 rand_vec = make_float3(rnd( seed ) - 0.5f, rnd( seed ) - 0.5f, rnd( seed ) - 0.5f);
             float3 from = hit_point-ray.direction*.1f;
@@ -162,7 +162,7 @@ __device__ void toonShade( float3 p_Kd,
             edge_ray = optix::make_Ray(from,
                     edge_test_dir, radiance_ray_type, scene_epsilon, RT_DEFAULT_MAX);
             rtTrace(top_object, edge_ray, new_prd);
-            if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.001) {
+            if (new_prd.mode_ret != 1 || new_prd.result.x - t_hit > 0.0001) {
                 result = make_float3(0.0,0.0,0.0);
                 break;
             }
