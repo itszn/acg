@@ -208,6 +208,7 @@ __device__ void toonShade( float3 p_Kd,
                         done = true;
                         break;
                     }
+                    */
                     if (i > 1 && j > 1) {
                         float mm = m - slopes[i-1][j-1];
                         float mm = m - slopes[i-1][j-1];
@@ -222,7 +223,6 @@ __device__ void toonShade( float3 p_Kd,
                             break;
                         }
                     }
-                    */
                 }
             }
         }
