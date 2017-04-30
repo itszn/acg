@@ -125,7 +125,8 @@ auto create_reflect_sphere(Context &context) -> GeometryInstance
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
     metal_matl["toon_exp"]->setFloat( 64 );
 
-    metal_matl["Kr"]->setFloat( 1.0f,  1.0f,  1.0f);
+    //metal_matl["Kr"]->setFloat( 1.0f,  1.0f,  1.0f);
+    metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
 
     return context->createGeometryInstance(
             metal_sphere, &metal_matl, &metal_matl + 1);
