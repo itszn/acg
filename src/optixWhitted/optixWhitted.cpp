@@ -75,7 +75,7 @@ int main(int argc, char **argv)
         auto gis = parse_obj_file(std::move(input_obj), context);
         gis.push_back(create_scene(context));
         gis.push_back(create_reflect_sphere(context));
-        gis.push_back(create_glass_sphere(context));
+        //gis.push_back(create_glass_sphere(context));
 
         // Place all in group
         GeometryGroup geometrygroup = context->createGeometryGroup();
