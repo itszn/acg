@@ -108,7 +108,7 @@ auto create_reflect_sphere(Context &context) -> GeometryInstance
     metal_sphere->setPrimitiveCount( 1u );
     metal_sphere->setBoundingBoxProgram( context->createProgramFromPTXFile( sphere_ptx, "bounds" ) );
     metal_sphere->setIntersectionProgram( context->createProgramFromPTXFile( sphere_ptx, "robust_intersect" ) );
-    metal_sphere["sphere"]->setFloat( 2.0f, 1.5f, -3.5f, 1.0f );
+    metal_sphere["sphere"]->setFloat( 3.0f, 1.5f, -3.75f, 1.0f );
 
     // metal material
     const std::string metal_ptx = ptxPath( "toon.cu" );
