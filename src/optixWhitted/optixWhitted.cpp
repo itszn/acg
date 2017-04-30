@@ -35,6 +35,7 @@ auto parse_obj_file(std::string path, Context &c)
 auto create_context() -> Context;
 auto create_scene(Context &context) -> GeometryInstance;
 auto create_reflect_sphere(Context &context) -> GeometryInstance;
+auto create_glass_sphere(Context &context) -> GeometryInstance;
 void setup_lights(Context &context);
 void setup_camera(Context &context);
 
@@ -74,6 +75,7 @@ int main(int argc, char **argv)
         auto gis = parse_obj_file(std::move(input_obj), context);
         gis.push_back(create_scene(context));
         gis.push_back(create_reflect_sphere(context));
+        gis.push_back(create_glass_sphere(context));
 
         // Place all in group
         GeometryGroup geometrygroup = context->createGeometryGroup();
@@ -127,6 +129,44 @@ auto create_reflect_sphere(Context &context) -> GeometryInstance
     return context->createGeometryInstance(
             metal_sphere, &metal_matl, &metal_matl + 1);
 
+}
+
+auto create_glass_sphere(Context &context) -> GeometryInstance
+{
+    // Create glass sphere geometry
+    const std::string shell_ptx = ptxPath( "sphere_shell.cu" );
+    Geometry glass_sphere = context->createGeometry();
+    glass_sphere->setPrimitiveCount( 1u );
+    glass_sphere->setBoundingBoxProgram( context->createProgramFromPTXFile( shell_ptx, "bounds" ) );
+    glass_sphere->setIntersectionProgram( context->createProgramFromPTXFile( shell_ptx, "intersect" ) );
+    glass_sphere["center"]->setFloat( 4.0f, 2.3f, -4.0f );
+    glass_sphere["radius1"]->setFloat( 0.96f );
+    glass_sphere["radius2"]->setFloat( 1.0f );
+
+    // Glass material
+    const std::string glass_ptx = ptxPath( "glass.cu" );
+    Program glass_ch = context->createProgramFromPTXFile( glass_ptx, "closest_hit_radiance" );
+    Program glass_ah = context->createProgramFromPTXFile( glass_ptx, "any_hit_shadow" );
+    Material glass_matl = context->createMaterial();
+    glass_matl->setClosestHitProgram( 0, glass_ch );
+    glass_matl->setAnyHitProgram( 1, glass_ah );
+
+    glass_matl["importance_cutoff"]->setFloat( 1e-2f );
+    glass_matl["cutoff_color"]->setFloat( 0.034f, 0.055f, 0.085f );
+    glass_matl["fresnel_exponent"]->setFloat( 3.0f );
+    glass_matl["fresnel_minimum"]->setFloat( 0.1f );
+    glass_matl["fresnel_maximum"]->setFloat( 1.0f );
+    glass_matl["refraction_index"]->setFloat( 1.4f );
+    glass_matl["refraction_color"]->setFloat( 1.0f, 1.0f, 1.0f );
+    glass_matl["reflection_color"]->setFloat( 1.0f, 1.0f, 1.0f );
+    glass_matl["refraction_maxdepth"]->setInt( 10 );
+    glass_matl["reflection_maxdepth"]->setInt( 5 );
+    const float3 extinction = make_float3(.83f, .83f, .83f);
+    glass_matl["extinction_constant"]->setFloat( log(extinction.x), log(extinction.y), log(extinction.z) );
+    glass_matl["shadow_attenuation"]->setFloat( 0.6f, 0.6f, 0.6f );
+
+    return context->createGeometryInstance(
+            glass_sphere, &glass_matl, &glass_matl + 1);
 }
     
 
