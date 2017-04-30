@@ -72,7 +72,8 @@ int main(int argc, char **argv)
         context = create_context();
 
         // Create GIs for each piece of geometry
-        auto gis = parse_obj_file(std::move(input_obj), context);
+        //auto gis = parse_obj_file(std::move(input_obj), context);
+        auto gis = std::vector<GeometryInstance>();
         gis.push_back(create_scene(context));
         gis.push_back(create_reflect_sphere(context));
         //gis.push_back(create_glass_sphere(context));
@@ -107,7 +108,7 @@ auto create_reflect_sphere(Context &context) -> GeometryInstance
     metal_sphere->setPrimitiveCount( 1u );
     metal_sphere->setBoundingBoxProgram( context->createProgramFromPTXFile( sphere_ptx, "bounds" ) );
     metal_sphere->setIntersectionProgram( context->createProgramFromPTXFile( sphere_ptx, "robust_intersect" ) );
-    metal_sphere["sphere"]->setFloat( 3.0f, 1.5f, -1.5f, 1.0f );
+    metal_sphere["sphere"]->setFloat( 1.0f, 1.5f, -3.0f, 1.0f );
 
     // metal material
     const std::string metal_ptx = ptxPath( "toon.cu" );
