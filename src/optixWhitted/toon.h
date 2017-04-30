@@ -124,7 +124,7 @@ __device__ void toonShade( float3 p_Kd,
         // If not completely shadowed, light the hit point
         if( fmaxf(light_attenuation) > 0.0f ) {
             float3 Lc = light.color * light_attenuation;
-            result += p_Kd * nDl * Lc;
+            result += p_Kd;// * nDl * Lc;
             intensity += nDl/num_lights;
         }
     }
