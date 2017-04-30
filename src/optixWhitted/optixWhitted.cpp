@@ -34,7 +34,7 @@ auto parse_obj_file(std::string path, Context &c)
     -> std::vector<GeometryInstance>;
 auto create_context() -> Context;
 auto create_scene(Context &context) -> GeometryInstance;
-auto create_sphere(Context &context) -> GeometryInstance;
+auto create_reflect_sphere(Context &context) -> GeometryInstance;
 void setup_lights(Context &context);
 void setup_camera(Context &context);
 
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
         // Create GIs for each piece of geometry
         auto gis = parse_obj_file(std::move(input_obj), context);
         gis.push_back(create_scene(context));
-        gis.push_back(create_sphere(context));
+        gis.push_back(create_reflect_sphere(context));
 
         // Place all in group
         GeometryGroup geometrygroup = context->createGeometryGroup();
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
-auto create_sphere(Context &context) -> GeometryInstance
+auto create_reflect_sphere(Context &context) -> GeometryInstance
 {
     // sphere
     const std::string sphere_ptx = ptxPath( "sphere.cu" );
@@ -118,7 +118,7 @@ auto create_sphere(Context &context) -> GeometryInstance
     metal_matl->setAnyHitProgram( 1, toon_ah );
     metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
     //metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
-    metal_matl["Kd"]->setFloat( 1.0f, 1.0f, 1.0f );
+    metal_matl["Kd"]->setFloat( 0.5f, 0.5f, 0.5f );
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
     metal_matl["toon_exp"]->setFloat( 64 );
 
