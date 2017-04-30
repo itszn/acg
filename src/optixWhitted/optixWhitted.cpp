@@ -34,6 +34,7 @@ auto parse_obj_file(std::string path, Context &c)
     -> std::vector<GeometryInstance>;
 auto create_context() -> Context;
 auto create_scene(Context &context) -> GeometryInstance;
+auto create_sphere(Context &context) -> GeometryInstance;
 void setup_lights(Context &context);
 void setup_camera(Context &context);
 
@@ -72,6 +73,7 @@ int main(int argc, char **argv)
         // Create GIs for each piece of geometry
         auto gis = parse_obj_file(std::move(input_obj), context);
         gis.push_back(create_scene(context));
+        gis.push_back(create_sphere(context));
 
         // Place all in group
         GeometryGroup geometrygroup = context->createGeometryGroup();
@@ -94,6 +96,38 @@ int main(int argc, char **argv)
     } SUTIL_CATCH( context->get() )
     return EXIT_SUCCESS;
 }
+
+auto create_sphere(Context &context) -> GeometryInstance
+{
+    // sphere
+    const std::string sphere_ptx = ptxPath( "sphere.cu" );
+    Geometry metal_sphere = context->createGeometry();
+    metal_sphere->setPrimitiveCount( 1u );
+    metal_sphere->setBoundingBoxProgram( context->createProgramFromPTXFile( sphere_ptx, "bounds" ) );
+    metal_sphere->setIntersectionProgram( context->createProgramFromPTXFile( sphere_ptx, "robust_intersect" ) );
+    metal_sphere["sphere"]->setFloat( 2.0f, 1.5f, -2.5f, 1.0f );
+
+    // metal material
+    const std::string metal_ptx = ptxPath( "toon.cu" );
+    Program toon_ch = context->createProgramFromPTXFile(
+            metal_ptx, "closest_hit_radiance");
+    Program toon_ah = context->createProgramFromPTXFile(
+            metal_ptx, "any_hit_shadow");
+    Material metal_matl = context->createMaterial();
+    metal_matl->setClosestHitProgram( 0, toon_ch );
+    metal_matl->setAnyHitProgram( 1, toon_ah );
+    metal_matl["Ka"]->setFloat( 0.2f, 0.5f, 0.5f );
+    metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
+    metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
+    metal_matl["toon_exp"]->setFloat( 64 );
+
+    metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
+
+    return context->createGeometryInstance(
+            metal_sphere, &metal_matl, &metal_matl + 1);
+
+}
+    
 
 auto create_triangle(Context &context,
                      const float3 &x,
@@ -134,6 +168,7 @@ auto create_triangle(Context &context,
     triangle["y"]->setFloat(make_float3(trans*rotm*scale*make_float4(y.x,y.y,y.z,1.0)));
     triangle["x"]->setFloat(make_float3(trans*rotm*scale*make_float4(z.x,z.y,z.z,1.0)));
 
+
     // metal material
     const std::string metal_ptx = ptxPath( "toon.cu" );
     Program toon_ch = context->createProgramFromPTXFile(
@@ -147,10 +182,11 @@ auto create_triangle(Context &context,
     metal_matl["Kd"]->setFloat( 0.2f, 0.7f, 0.8f );
     metal_matl["Ks"]->setFloat( 0.9f, 0.9f, 0.9f );
     metal_matl["toon_exp"]->setFloat( 64 );
-#if 0
-    metal_matl["Kr"]->setFloat( 0.5f,  0.5f,  0.5f);
-#endif
+
     metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
+
+
+    //metal_matl["Kr"]->setFloat( 0.0f,  0.0f,  0.0f);
 
     return context->createGeometryInstance(triangle, &metal_matl, &metal_matl+1);
 }
