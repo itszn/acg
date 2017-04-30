@@ -163,7 +163,7 @@ __device__ void toonShade( float3 p_Kd,
         float3 v = optix::normalize(optix::cross(norm, u));
 
         //float width = 0.02f;
-        float width = 0.02f;
+        float width = 0.04f;
         float widthI = width/5.0f;
 
         float data[10][10];
